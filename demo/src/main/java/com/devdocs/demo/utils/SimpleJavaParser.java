@@ -1,7 +1,5 @@
 package com.devdocs.demo.utils;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.github.javaparser.JavaParser;
@@ -12,9 +10,7 @@ import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.nodeTypes.NodeWithAnnotations;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SimpleJavaParser {
 
@@ -316,59 +312,39 @@ public class SimpleJavaParser {
                 "\n" +
                 "    public Cube(String colorInput) {\n" +
                 "        Cube c = new Cube();\n" +
-                "\n" +
                 "        EdgePos edgePos = c.getEdge().getEdgePos();\n" +
                 "        EdgeOrientation edgeOrientation = c.getEdge().getEdgeOrientation();\n" +
-                "\n" +
                 "        CornerPos cornerPos = c.getCorner().getCornerPos();\n" +
                 "        CornerOrientation cornerOrientation = c.getCorner().getCornerOrientation();\n" +
-                "\n" +
                 "        byte[] basicPositionsInfo = {4, 13, 22, 31, 40, 49}, basicOrientationInfo = {3, -1, -2, 1, 2, -3};\n" +
                 "        String basicPositions = \"ULFRBD\";\n" +
-                "\n" +
                 "        StringBuilder givenPositions = new StringBuilder();\n" +
-                "\n" +
                 "        HashMap<Character, Character> colorToSide = new HashMap<>();\n" +
-                "\n" +
                 "        for (int i = 0; i < basicOrientationInfo.length; i++)\n" +
                 "            givenPositions.append(colorInput.charAt(basicPositionsInfo[i]));\n" +
-                "\n" +
                 "        for (int i = 0; i < 6; i++)\n" +
                 "            colorToSide.put(givenPositions.charAt(i), basicPositions.charAt(i));\n" +
-                "\n" +
                 "        byte tempCounter = 0;\n" +
-                "\n" +
                 "        for (byte[] bytes : edgeList) {\n" +
                 "            char side1 = colorToSide.get(colorInput.charAt(bytes[0]));\n" +
                 "            char side2 = colorToSide.get(colorInput.charAt(bytes[1]));\n" +
-                "\n" +
                 "            byte binaryNum = (byte) (binEncoding.get(side1) ^ binEncoding.get(side2));\n" +
-                "\n" +
                 "            edgePos.setVal(edgeNumberForPos.get(binaryNum), tempCounter++);\n" +
-                "\n" +
                 "            byte priorityNumber = (byte) Math.max(priority.get(side1), priority.get(side2));\n" +
                 "            byte referenceNumber = priorityNumber == priority.get(side1) ? bytes[0] : bytes[1];\n" +
-                "\n" +
                 "            edgeOrientation.setVal(edgeNumberForPos.get(binaryNum), basicOrientationInfo[referenceNumber / 9]);\n" +
                 "        }\n" +
-                "\n" +
                 "        tempCounter = 0;\n" +
-                "\n" +
                 "        for (byte[] bytes : cornerList) {\n" +
                 "            char side1 = colorToSide.get(colorInput.charAt(bytes[0]));\n" +
                 "            char side2 = colorToSide.get(colorInput.charAt(bytes[1]));\n" +
                 "            char side3 = colorToSide.get(colorInput.charAt(bytes[2]));\n" +
-                "\n" +
                 "            byte binaryNum = (byte) (binEncoding.get(side1) ^ binEncoding.get(side2) ^ binEncoding.get(side3));\n" +
-                "\n" +
                 "            cornerPos.setVal(cornerNumberForPos.get(binaryNum), tempCounter++);\n" +
-                "\n" +
                 "            byte priorityNumber = (byte) Math.max(priority.get(side1), Math.max(priority.get(side2), priority.get(side3)));\n" +
                 "            byte referenceNumber = priorityNumber == priority.get(side1) ? bytes[0] : (priorityNumber == priority.get(side2) ? bytes[1] : bytes[2]);\n" +
-                "\n" +
                 "            cornerOrientation.setVal(cornerNumberForPos.get((binaryNum)), basicOrientationInfo[referenceNumber / 9]);\n" +
                 "        }\n" +
-                "\n" +
                 "        this.setEdge(new Edge(edgePos, edgeOrientation));\n" +
                 "        this.setCorner(new Corner(cornerPos, cornerOrientation));\n" +
                 "    }\n" +
@@ -380,12 +356,9 @@ public class SimpleJavaParser {
                 "\n" +
                 "    public static Cube execute(Cube c, String s) {\n" +
                 "        Cube temp = c.clone();\n" +
-                "\n" +
                 "        String[] moves = s.split(\" \");\n" +
-                "\n" +
                 "        if (moves.length > 1) {\n" +
                 "            StringBuilder sBuilder = new StringBuilder();\n" +
-                "\n" +
                 "            for (String string : moves) {\n" +
                 "                if (string.length() == 1)\n" +
                 "                    sBuilder.append(string.charAt(0));\n" +
@@ -394,32 +367,23 @@ public class SimpleJavaParser {
                 "                else\n" +
                 "                    sBuilder.append(String.valueOf(string.charAt(0)).repeat(3));\n" +
                 "            }\n" +
-                "\n" +
                 "            s = sBuilder.toString();\n" +
                 "        }\n" +
-                "\n" +
                 "        for (int i = 0; i < s.length(); i++) {\n" +
                 "            char ch = s.charAt(i);\n" +
-                "\n" +
                 "            EdgePos edgePos = temp.getEdge().getEdgePos().clone();\n" +
                 "            EdgeOrientation edgeOrientation = temp.getEdge().getEdgeOrientation().clone();\n" +
-                "\n" +
-                "\n" +
                 "            for (int j = 0; j < 12; j++) {\n" +
                 "                edgeOrientation.setVal(j, nextEdgeOrientation.get(ch).get(edgePos.getVal()[j]).get(edgeOrientation.getVal()[j]));\n" +
                 "                edgePos.setVal(j, nextEdgePos.get(ch).getVal()[edgePos.getVal()[j]]);\n" +
                 "            }\n" +
-                "\n" +
                 "            temp.setEdge(new Edge(edgePos, edgeOrientation));\n" +
-                "\n" +
                 "            CornerPos cornerPos = temp.getCorner().getCornerPos().clone();\n" +
                 "            CornerOrientation cornerOrientation = temp.getCorner().getCornerOrientation().clone();\n" +
-                "\n" +
                 "            for (int j = 0; j < 8; j++) {\n" +
                 "                cornerOrientation.setVal(j, nextCornerOrientation.get(ch).get(cornerPos.getVal()[j]).get(cornerOrientation.getVal()[j]));\n" +
                 "                cornerPos.setVal(j, nextCornerPos.get(ch).getVal()[cornerPos.getVal()[j]]);\n" +
                 "            }\n" +
-                "\n" +
                 "            temp.setCorner(new Corner(cornerPos, cornerOrientation));\n" +
                 "        }\n" +
                 "        return temp;\n" +
@@ -427,10 +391,8 @@ public class SimpleJavaParser {
                 "\n" +
                 "    public static String reverseAlgorithm(String s) {\n" +
                 "        StringBuilder result = new StringBuilder();\n" +
-                "\n" +
                 "        for (int i = 0; i < s.length(); i++)\n" +
                 "            result.append(String.valueOf(s.charAt(i)).repeat(3));\n" +
-                "\n" +
                 "        return new StringBuilder(result.toString()).reverse().toString();\n" +
                 "    }\n" +
                 "\n" +
@@ -438,18 +400,14 @@ public class SimpleJavaParser {
                 "        class Temp {\n" +
                 "            final char ch;\n" +
                 "            final byte b;\n" +
-                "\n" +
                 "            public Temp(char ch, byte b) {\n" +
                 "                this.ch = ch;\n" +
                 "                this.b = b;\n" +
                 "            }\n" +
                 "        }\n" +
-                "\n" +
                 "        Stack<Temp> s = new Stack<>();\n" +
-                "\n" +
                 "        ArrayList<String> v = new ArrayList<>(Arrays.asList(\"\", \"\", \"2\", \"'\"));\n" +
                 "        ArrayList<String> result = new ArrayList<>();\n" +
-                "\n" +
                 "        for (int i = 0; i < moves.length(); i++) {\n" +
                 "            if (s.isEmpty() || s.peek().ch != moves.charAt(i))\n" +
                 "                s.push(new Temp(moves.charAt(i), (byte) 1));\n" +
@@ -459,13 +417,11 @@ public class SimpleJavaParser {
                 "                    s.push(new Temp(x.ch, (byte) (x.b + 1)));\n" +
                 "            }\n" +
                 "        }\n" +
-                "\n" +
                 "        while (!s.isEmpty()) {\n" +
                 "            Temp x = s.pop();\n" +
                 "            if (x.b != 0)\n" +
                 "                result.add(0, x.ch + v.get(x.b));\n" +
                 "        }\n" +
-                "\n" +
                 "        return result;\n" +
                 "    }\n" +
                 "\n" +
@@ -496,13 +452,11 @@ public class SimpleJavaParser {
                 "\n" +
                 "// U2 L2 F R D R F R F' L' B U2 F R2 L2 F' U2 B L2 B\n";
 
-//        JavaFileStructure parsedStructure = parseJavaCode(javaCode);
         System.out.println(SimpleJavaParser.parseCodeToJSON(javaCode));
     }
 
     public static JavaFileStructure parseJavaCode(String javaCode) {
         ParseResult<CompilationUnit> parseResult = new JavaParser().parse(javaCode);
-
         if (parseResult.isSuccessful() && parseResult.getResult().isPresent()) {
             CompilationUnit cu = parseResult.getResult().get();
             JavaFileVisitor visitor = new JavaFileVisitor();
@@ -517,14 +471,11 @@ public class SimpleJavaParser {
     public static String parseCodeToJSON(String fileContent) {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT); // Pretty print
-
         try {
             JavaFileStructure parsedStructure = SimpleJavaParser.parseJavaCode(fileContent);
-
             if (parsedStructure == null) {
                 return objectMapper.writeValueAsString(Map.of("error", "Parsing failed"));
             }
-
             return objectMapper.writeValueAsString(parsedStructure);
         } catch (Exception e) {
             e.printStackTrace();
@@ -536,9 +487,39 @@ public class SimpleJavaParser {
         }
     }
 
+    public static class JavaFileStructure {
+        public List<String> imports = new ArrayList<>();
+        public List<JavaClassStructure> classes = new ArrayList<>();
+
+        public static class JavaClassStructure {
+            public String name = "";
+            public List<String> annotations = new ArrayList<>();
+            public String extendedClass = "";
+            public List<String> implementedInterfaces = new ArrayList<>();
+            public List<JavaFieldStructure> fields = new ArrayList<>();
+            public List<JavaMethodStructure> methods = new ArrayList<>();
+            public List<JavaClassStructure> nestedClasses = new ArrayList<>(); // For nested/local classes
+        }
+
+        public static class JavaFieldStructure {
+            public String name = "";
+            public String type = "";
+            public List<String> annotations = new ArrayList<>();
+        }
+
+        public static class JavaMethodStructure {
+            public String name = "";
+            public String returnType = "";
+            public List<String> annotations = new ArrayList<>();
+            public List<String> parameters = new ArrayList<>();
+            public String body = "";
+        }
+    }
+
     private static class JavaFileVisitor extends VoidVisitorAdapter<Void> {
         private final JavaFileStructure javaFileStructure = new JavaFileStructure();
-        private JavaFileStructure.JavaClassStructure currentClass = null;
+        private final Stack<JavaFileStructure.JavaClassStructure> classStack = new Stack<>();
+        private final Stack<JavaFileStructure.JavaMethodStructure> methodStack = new Stack<>();
 
         @Override
         public void visit(ImportDeclaration n, Void arg) {
@@ -548,23 +529,36 @@ public class SimpleJavaParser {
 
         @Override
         public void visit(ClassOrInterfaceDeclaration n, Void arg) {
-            currentClass = new JavaFileStructure.JavaClassStructure();
-            currentClass.name = n.getNameAsString();
-            currentClass.annotations = extractAnnotations(n);
-            currentClass.extendedClass = n.getExtendedTypes().isNonEmpty() ? n.getExtendedTypes().get(0).getNameAsString() : "";
-            currentClass.implementedInterfaces = n.getImplementedTypes().stream().map(t -> t.getNameAsString()).toList();
-            javaFileStructure.classes.add(currentClass);
+            JavaFileStructure.JavaClassStructure newClass = new JavaFileStructure.JavaClassStructure();
+            newClass.name = n.getNameAsString();
+            newClass.annotations = extractAnnotations(n);
+            newClass.extendedClass = n.getExtendedTypes().isNonEmpty() ? n.getExtendedTypes().get(0).getNameAsString() : "";
+            newClass.implementedInterfaces = n.getImplementedTypes().stream().map(t -> t.getNameAsString()).toList();
 
-            // Now visit the children AFTER setting currentClass
+            // Determine if this is a top-level, nested, or local class
+            if (classStack.isEmpty()) {
+                javaFileStructure.classes.add(newClass); // Top-level class
+            } else if (!methodStack.isEmpty()) {
+                // Local class within a method
+                methodStack.peek().body += "\n[Local class: " + newClass.name + "]";
+                classStack.peek().nestedClasses.add(newClass); // Still nest it for structure
+            } else {
+                // Nested class within another class
+                classStack.peek().nestedClasses.add(newClass);
+            }
+
+            classStack.push(newClass);
             super.visit(n, arg);
+            classStack.pop();
         }
 
         @Override
         public void visit(FieldDeclaration n, Void arg) {
-            if (currentClass == null) {
+            if (classStack.isEmpty()) {
                 System.err.println("Warning: FieldDeclaration found but no class exists in the structure.");
                 return;
             }
+            JavaFileStructure.JavaClassStructure currentClass = classStack.peek();
             for (VariableDeclarator var : n.getVariables()) {
                 JavaFileStructure.JavaFieldStructure field = new JavaFileStructure.JavaFieldStructure();
                 field.name = var.getNameAsString();
@@ -577,10 +571,11 @@ public class SimpleJavaParser {
 
         @Override
         public void visit(MethodDeclaration n, Void arg) {
-            if (currentClass == null) {
+            if (classStack.isEmpty()) {
                 System.err.println("Warning: MethodDeclaration found but no class exists in the structure.");
                 return;
             }
+            JavaFileStructure.JavaClassStructure currentClass = classStack.peek();
             JavaFileStructure.JavaMethodStructure method = new JavaFileStructure.JavaMethodStructure();
             method.name = n.getNameAsString();
             method.returnType = n.getType().toString();
@@ -590,7 +585,10 @@ public class SimpleJavaParser {
                     .toList();
             method.body = n.getBody().map(Object::toString).orElse("");
             currentClass.methods.add(method);
+
+            methodStack.push(method);
             super.visit(n, arg);
+            methodStack.pop();
         }
 
         private List<String> extractAnnotations(NodeWithAnnotations<?> node) {
@@ -600,83 +598,5 @@ public class SimpleJavaParser {
         public JavaFileStructure getJavaFileStructure() {
             return javaFileStructure;
         }
-    }
-}
-
-
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
-class JavaFileStructure {
-    List<String> imports = new ArrayList<>();
-    List<JavaClassStructure> classes = new ArrayList<>();
-
-
-    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    static class JavaClassStructure {
-        String name;
-        String extendedClass;
-        List<String> implementedInterfaces = new ArrayList<>();
-        List<String> annotations = new ArrayList<>();
-        List<JavaFieldStructure> fields = new ArrayList<>();
-        List<JavaMethodStructure> methods = new ArrayList<>();
-    }
-
-
-    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    static class JavaFieldStructure {
-        String name;
-        String type;
-        List<String> annotations = new ArrayList<>();
-    }
-
-
-    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    static class JavaMethodStructure {
-        String name;
-        String returnType;
-        List<String> parameters = new ArrayList<>();
-        List<String> annotations = new ArrayList<>();
-        String body;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Imports:\n");
-        imports.forEach(i -> sb.append("  ").append(i).append("\n"));
-
-        for (JavaClassStructure cls : classes) {
-            sb.append("\nClass: ").append(cls.name).append("\n");
-            if (!cls.annotations.isEmpty()) {
-                sb.append("  Annotations: ").append(cls.annotations).append("\n");
-            }
-            if (!cls.extendedClass.isEmpty()) {
-                sb.append("  Extends: ").append(cls.extendedClass).append("\n");
-            }
-            if (!cls.implementedInterfaces.isEmpty()) {
-                sb.append("  Implements: ").append(cls.implementedInterfaces).append("\n");
-            }
-            sb.append("  Fields:\n");
-            for (JavaFieldStructure field : cls.fields) {
-                sb.append("    - ").append(field.type).append(" ").append(field.name);
-                if (!field.annotations.isEmpty()) {
-                    sb.append(" (Annotations: ").append(field.annotations).append(")");
-                }
-                sb.append("\n");
-            }
-            sb.append("  Methods:\n");
-            for (JavaMethodStructure method : cls.methods) {
-                sb.append("    - ").append(method.returnType).append(" ").append(method.name)
-                        .append("(").append(String.join(", ", method.parameters)).append(")\n");
-                if (!method.annotations.isEmpty()) {
-                    sb.append("      Annotations: ").append(method.annotations).append("\n");
-                }
-                sb.append("      Body: ").append(method.body).append("\n");
-            }
-        }
-        return sb.toString();
     }
 }

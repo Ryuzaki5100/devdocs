@@ -13,7 +13,6 @@ import org.json.JSONObject;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
-
 public class GitHubRepoContents {
 
     static Dotenv dotenv = Dotenv.configure().load();
@@ -32,8 +31,9 @@ public class GitHubRepoContents {
 //            listFileStructure(OWNER, REPO, BRANCH, "");
 
             // Retrieve and print the contents of a specific file
-            String filePath = "demo/src/main/java/com/cube/demo/rbxcb/rbxcb_3x3x3/Solvers/_4StageSolver.java";
-            String fileContents = getFileContents(OWNER, REPO, filePath, BRANCH);
+            String filePath = "demo/src/main/java/com/devdocs/demo/DemoApplication.java";
+            String fileContents = getFileContents(OWNER, REPO, BRANCH, filePath);
+//            System.out.println(fileContents);
 //            System.out.println("Contents of " + filePath + ":");
 //            System.out.println(fileContents);
             System.out.println(SimpleJavaParser.parseJavaCode(fileContents));
@@ -78,7 +78,7 @@ public class GitHubRepoContents {
         }
     }
 
-    public static String getFileContents(String owner, String repo, String path, String branch) throws Exception {
+    public static String getFileContents(String owner, String repo, String branch, String path) throws Exception {
         String urlString = String.format("https://api.github.com/repos/%s/%s/contents/%s?ref=%s", owner, repo, path, branch);
         URL url = new URL(urlString);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
