@@ -1,4 +1,3 @@
-//    private static final String TOKEN = "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";
 package com.devdocs.demo.utils;
 
 import java.io.BufferedReader;
