@@ -9,6 +9,7 @@ chcp 65001 >nul
 for %%I in ("%~dp0..") do set "project_root=%%~fI"
 set "batch_files_dir=%project_root%\batch_files"
 set "java_files=%batch_files_dir%\java_files.txt"
+set "chunks_json=%batch_files_dir%\chunks.json"
 
 :: Ensure batch_files directory exists
 if not exist "%batch_files_dir%" (
@@ -43,8 +44,8 @@ if "%GH_BRANCH%"=="" (
     exit /b 1
 )
 
-:: Initialize chunks.json
-echo { > chunks.json
+:: Initialize chunks.json inside batch_files
+echo { > "%chunks_json%"
 
 set "first_entry=1"
 
@@ -82,34 +83,34 @@ for /f "usebackq tokens=*" %%i in ("%java_files%") do (
         for %%F in ("temp.json") do set "size=%%~zF"
         if !size! gtr 0 (
             if !first_entry! equ 1 (
-                echo   "!json_key!": >> chunks.json
-                type temp.json >> chunks.json
+                echo   "!json_key!": >> "%chunks_json%"
+                type temp.json >> "%chunks_json%"
                 set "first_entry=0"
             ) else (
-                echo   , "!json_key!": >> chunks.json
-                type temp.json >> chunks.json
+                echo   , "!json_key!": >> "%chunks_json%"
+                type temp.json >> "%chunks_json%"
             )
         ) else (
             if !first_entry! equ 1 (
-                echo   "!json_key!": {"error": "Empty response from API"} >> chunks.json
+                echo   "!json_key!": {"error": "Empty response from API"} >> "%chunks_json%"
                 set "first_entry=0"
             ) else (
-                echo   , "!json_key!": {"error": "Empty response from API"} >> chunks.json
+                echo   , "!json_key!": {"error": "Empty response from API"} >> "%chunks_json%"
             )
         )
     ) else (
         if !first_entry! equ 1 (
-            echo   "!json_key!": {"error": "API call failed"} >> chunks.json
+            echo   "!json_key!": {"error": "API call failed"} >> "%chunks_json%"
             set "first_entry=0"
         ) else (
-            echo   , "!json_key!": {"error": "API call failed"} >> chunks.json
+            echo   , "!json_key!": {"error": "API call failed"} >> "%chunks_json%"
         )
     )
 
     if exist "temp.json" del "temp.json"
 )
 
-echo } >> chunks.json
-echo Done! Results written to chunks.json
+echo } >> "%chunks_json%"
+echo Done! Results written to %chunks_json%
 endlocal
 exit /b 0
