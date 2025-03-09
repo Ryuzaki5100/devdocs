@@ -14,7 +14,7 @@ if %ERRORLEVEL% neq 0 (
 
 :: Check if java-files.txt exists
 if not exist "java_files.txt" (
-    echo Error: java-files.txt not found in the current directory.
+    echo Error: java_files.txt not found in the current directory.
     exit /b 1
 )
 
