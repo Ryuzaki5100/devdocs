@@ -1,15 +1,15 @@
-# Importing JDK and copying required files
 FROM openjdk:19-jdk AS build
 WORKDIR /app
 
-# Copy Maven wrapper
+# Copy only necessary files first
+COPY mvnw .
 COPY . .
 
-# Set execution permission for the Maven wrapper
-RUN chmod +x ./mvnw
+# Ensure `mvnw` is executable
+RUN chmod +x mvnw
 RUN ./mvnw clean package -DskipTests
 
-# Stage 2: Create the final Docker image using OpenJDK 19
+# Stage 2: Create the final Docker image
 FROM openjdk:19-jdk
 VOLUME /tmp
 
