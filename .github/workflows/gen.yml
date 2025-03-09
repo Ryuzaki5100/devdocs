@@ -30,11 +30,12 @@ jobs:
         shell: cmd
 
       - name: Process java_files.txt and Generate JSON
-        run: |
-          cd batch_files
-          call setEnv.bat
-          call generateChunks.bat
+        run: batch_files\generateChunks.bat
         shell: cmd
+        env:
+          GH_OWNER: ${{ github.repository_owner }}
+          GH_REPO: ${{ github.repository }}
+          GH_BRANCH: ${{ github.ref_name }}
 
       - name: Configure Git
         run: |
