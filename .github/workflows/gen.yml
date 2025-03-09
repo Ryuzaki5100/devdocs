@@ -36,7 +36,7 @@ jobs:
         shell: cmd
 
       - name: List all files in root
-        run: dir /s
+        run: dir
         shell: cmd
 
       - name: Generate java_files.txt
