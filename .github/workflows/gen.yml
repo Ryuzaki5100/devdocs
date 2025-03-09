@@ -44,7 +44,7 @@ jobs:
         shell: cmd
 
       - name: print Stuff
-        run: type batch_files\java_files.txt
+        run: curl --version
         shell: cmd
 
       - name: Process java_files.txt and Generate JSON
