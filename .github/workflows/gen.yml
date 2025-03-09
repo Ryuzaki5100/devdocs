@@ -34,12 +34,12 @@ jobs:
 
       # Run the first batch file to generate java_files.txt
       - name: Generate java_files.txt
-        run: batch_files\generate-java-files.bat
+        run: batch_files\generateFileStructure.bat
         shell: cmd
 
       # Run the second batch file to process java_files.txt and create JSON
       - name: Process java_files.txt and Generate JSON
-        run: batch_files\process-java-files.bat
+        run: batch_files\generateChunks.bat
         shell: cmd
 
       # Configure Git
