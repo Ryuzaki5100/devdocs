@@ -1,24 +1,14 @@
-# Ignore all files by default
-*
+HELP.md
 
-# Allow JAR files
-!*.jar
+# Ignore everything inside the target directory
+target/
 
-# Allow specific files that should be included in Git
-!HELP.md
+# Allow only JAR files inside target/
+!target/**/*.jar
+
 !.mvn/wrapper/maven-wrapper.jar
-
-# Allow everything inside src/main/**/target/ and src/test/**/target/
 !**/src/main/**/target/
 !**/src/test/**/target/
-
-# Allow everything inside src/main/**/build/ and src/test/**/build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-# Ignore compiled output and build artifacts
-target/
-build/
 
 ### STS ###
 .apt_generated
