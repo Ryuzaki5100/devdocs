@@ -1,7 +1,8 @@
-HELP.md
+# Ignore environment variables
+.env
 
 # Ignore everything inside the target directory
-#target/
+demo/target/
 
 # Allow only JAR files inside target/
 #!target/**/*.jar
