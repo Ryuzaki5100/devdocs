@@ -35,6 +35,9 @@ jobs:
           echo "%GITHUB_WORKSPACE%" >> "%GITHUB_PATH%"
         shell: cmd
 
+      - name: List all files in root
+        run: dir /s
+        shell: cmd
 
       - name: Generate java_files.txt
         run: batch_files\generateFileStructure.bat
