@@ -4,11 +4,11 @@ HELP.md
 target/
 
 # Allow only JAR files inside target/
-!target/**/*.jar
+#!target/**/*.jar
 
 !.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+#!**/src/main/**/target/
+#!**/src/test/**/target/
 
 ### STS ###
 .apt_generated
