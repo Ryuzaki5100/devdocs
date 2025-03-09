@@ -20,7 +20,7 @@ public class GitHubRepoContents {
     private static final String OWNER = "Ryuzaki5100";
     private static final String REPO = "rbxcb";
     private static final String BRANCH = "master"; // Specify the branch you want to access
-    private static final String TOKEN = "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";
+    private static final String TOKEN = "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";
     private static final int RATE_LIMIT_DELAY = 1000; // Delay in milliseconds to avoid rate limiting
 
     private static Map<String, Long> rateLimitHeaders = new HashMap<>();
