@@ -15,13 +15,18 @@ jobs:
 
       - name: Install curl
         run: |
-          mkdir curl-install
+          if not exist "curl-install" mkdir curl-install
           cd curl-install
+          
           powershell -Command "Invoke-WebRequest -Uri 'https://curl.se/windows/dl-8.4.0_7/curl-8.4.0_7-win64-mingw.zip' -OutFile 'curl.zip'"
           powershell -Command "Expand-Archive -Path 'curl.zip' -DestinationPath ."
-          move curl-*-win64-mingw\bin\curl.exe %GITHUB_WORKSPACE%
+
+          for /d %%D in (curl-*-win64-mingw) do set "CURL_DIR=%%D"
+          move "!CURL_DIR!\bin\curl.exe" "%GITHUB_WORKSPACE%"
+          
           cd %GITHUB_WORKSPACE%
           rmdir /s /q curl-install
+
           echo %GITHUB_WORKSPACE%>> %GITHUB_PATH%
         shell: cmd
 
