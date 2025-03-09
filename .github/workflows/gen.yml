@@ -64,6 +64,10 @@ jobs:
           GH_REPO: devdocs
           GH_BRANCH: ${{ github.ref_name }}
 
+      - name: print Stuff again
+        run: type chunks.json
+        shell: cmd
+
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
