@@ -72,7 +72,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          shell: cmd
+        shell: cmd
 
       - name: Commit Generated Files
         run: |
@@ -81,6 +81,6 @@ jobs:
           git add *.json
           git diff --staged --quiet || git commit -m "Auto-generate java_files.txt and JSON [skip ci]"
           git push
-          shell: cmd
-          env:
+        shell: cmd
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
