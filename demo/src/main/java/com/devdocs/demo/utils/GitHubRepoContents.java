@@ -11,11 +11,11 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import io.github.cdimascio.dotenv.Dotenv;
+// import io.github.cdimascio.dotenv.Dotenv;
 
 public class GitHubRepoContents {
 
-    static Dotenv dotenv = Dotenv.configure().load();
+    // static Dotenv dotenv = Dotenv.configure().load();
 
     private static final String OWNER = "Ryuzaki5100";
     private static final String REPO = "rbxcb";
