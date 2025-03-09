@@ -43,8 +43,8 @@ jobs:
         run: batch_files\generateFileStructure.bat
         shell: cmd
 
-      - name: Debug - List all files after running generateFileStructure.bat
-        run: dir /s /b
+      - name: print Stuff
+        run: type java_files.txt
         shell: cmd
 
       - name: Process java_files.txt and Generate JSON
