@@ -15,7 +15,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 
 public class GitHubRepoContents {
 
-     static Dotenv dotenv = Dotenv.configure().load();
+     static Dotenv dotenv = Dotenv.configure("/etc/secrets").load();
 
     private static final String OWNER = "Ryuzaki5100";
     private static final String REPO = "rbxcb";
