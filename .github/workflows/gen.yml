@@ -45,7 +45,7 @@ jobs:
         shell: cmd
         env:
           GH_OWNER: ${{ github.repository_owner }}
-          GH_REPO: ${{ github.repository }}
+          GH_REPO: devdocs
           GH_BRANCH: ${{ github.ref_name }}
 
       - name: Configure Git
