@@ -1,28 +1,14 @@
 # Stage 1: Build the application
-FROM maven:3.9.9-openjdk-17 AS builder
-
-# Set working directory
+FROM maven:3.9.9-eclipse-temurin-18 AS builder
 WORKDIR /app
-
-# Copy the pom.xml and download dependencies (caching layer)
 COPY pom.xml .
 RUN mvn dependency:go-offline -B
-
-# Copy the source code and build the application
 COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Stage 2: Create the runtime image
-FROM openjdk:17-jdk-slim
-
-# Set working directory
+FROM eclipse-temurin:18-jdk
 WORKDIR /app
-
-# Copy the JAR file from the builder stage
 COPY --from=builder /app/target/*.jar app.jar
-
-# Expose the port (Render will override with PORT env variable if needed)
 EXPOSE 8080
-
-# Run the application, binding to 0.0.0.0 for Render
 ENTRYPOINT ["java", "-jar", "-Dserver.address=0.0.0.0", "-Dserver.port=${PORT:-8080}", "app.jar"]
