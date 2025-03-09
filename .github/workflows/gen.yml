@@ -1,0 +1,62 @@
+name: Generate Documentation
+
+on:
+  push:
+    branches:
+      - '*'
+
+jobs:
+  generate-docs:
+    runs-on: windows-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Install curl directly (Solution 2 from previous response)
+      - name: Install curl
+        run: |
+          mkdir curl-install
+          cd curl-install
+          powershell -Command "Invoke-WebRequest -Uri 'https://curl.se/windows/dl-8.4.0_7/curl-8.4.0_7-win64-mingw.zip' -OutFile 'curl.zip'"
+          powershell -Command "Expand-Archive -Path 'curl.zip' -DestinationPath ."
+          move curl-*-win64-mingw\bin\curl.exe %GITHUB_WORKSPACE%
+          cd %GITHUB_WORKSPACE%
+          rmdir /s /q curl-install
+          echo %GITHUB_WORKSPACE%>> %GITHUB_PATH%
+        shell: cmd
+
+      # Verify curl is available (optional debugging step)
+      - name: Verify curl
+        run: where curl || echo "curl not found"
+        shell: cmd
+
+      # Run the first batch file to generate java_files.txt
+      - name: Generate java_files.txt
+        run: batch_files\generate-java-files.bat
+        shell: cmd
+
+      # Run the second batch file to process java_files.txt and create JSON
+      - name: Process java_files.txt and Generate JSON
+        run: batch_files\process-java-files.bat
+        shell: cmd
+
+      # Configure Git
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+        shell: cmd
+
+      # Stage and commit the generated files
+      - name: Commit Generated Files
+        run: |
+          cd batch_files
+          git add java_files.txt
+          git add *.json
+          git diff --staged --quiet || git commit -m "Auto-generate java_files.txt and JSON [skip ci]"
+          git push
+        shell: cmd
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
