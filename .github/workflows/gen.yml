@@ -80,7 +80,7 @@ jobs:
       - name: Commit Generated Files
         run: |
           git add batch_files\java_files.txt
-          git add chunks.json
+          git add batch_files\chunks.json
           git diff --staged --quiet || git commit -m "Auto-generate java_files.txt and JSON [skip ci]"
           git push
         shell: cmd
