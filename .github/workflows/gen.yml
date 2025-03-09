@@ -43,6 +43,10 @@ jobs:
         run: batch_files\generateFileStructure.bat
         shell: cmd
 
+      - name: print Stuff
+        run: type batch_files/java_files.txt
+        shell: cmd
+
       - name: Process java_files.txt and Generate JSON
         run: batch_files\generateChunks.bat
         shell: cmd
