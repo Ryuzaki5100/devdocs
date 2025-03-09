@@ -1,8 +1,24 @@
-HELP.md
-target/
+# Ignore all files by default
+*
+
+# Allow JAR files
+!*.jar
+
+# Allow specific files that should be included in Git
+!HELP.md
 !.mvn/wrapper/maven-wrapper.jar
+
+# Allow everything inside src/main/**/target/ and src/test/**/target/
 !**/src/main/**/target/
 !**/src/test/**/target/
+
+# Allow everything inside src/main/**/build/ and src/test/**/build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# Ignore compiled output and build artifacts
+target/
+build/
 
 ### STS ###
 .apt_generated
@@ -14,7 +30,7 @@ target/
 .sts4-cache
 
 ### IntelliJ IDEA ###
-.idea
+.idea/
 *.iws
 *.iml
 *.ipr
@@ -25,9 +41,6 @@ target/
 /dist/
 /nbdist/
 /.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
 
 ### VS Code ###
 .vscode/
