@@ -1,6 +1,0 @@
-demo\src\main\java\com\devdocs\demo\DemoApplication.java 
-demo\src\main\java\com\devdocs\demo\controllers\JavaParserController.java 
-demo\src\main\java\com\devdocs\demo\utils\GitHubRepoContents.java 
-demo\src\main\java\com\devdocs\demo\utils\JavaFileStructure.java 
-demo\src\main\java\com\devdocs\demo\utils\SimpleJavaParser.java 
-demo\src\test\java\com\devdocs\demo\DemoApplicationTests.java 

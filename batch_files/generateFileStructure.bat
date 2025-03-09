@@ -22,7 +22,11 @@ REM Find all .java files and store their paths relative to project root
 for /r "%project_root%" %%f in (*.java) do (
     set "full_path=%%f"
     set "relative_path=!full_path:%project_root%\=!"
-    echo !relative_path! >> %output_file%
+
+    REM Convert backslashes to forward slashes
+    set "relative_path=!relative_path:\=/!"
+
+    echo(!relative_path! >> %output_file%
 )
 
 REM Check if anything was written
@@ -31,3 +35,5 @@ if %errorlevel% neq 0 (
 ) else (
     echo Paths of all .java files have been stored in %output_file%
 )
+
+endlocal

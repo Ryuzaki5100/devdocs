@@ -15,442 +15,142 @@ import java.util.*;
 public class SimpleJavaParser {
 
     public static void main(String[] args) {
-        String javaCode = "package com.cube.demo.rbxcb.rbxcb_3x3x3.Model;\n" +
+        String javaCode = "package com.devdocs.demo.utils;\n" +
                 "\n" +
-                "import java.util.*;\n" +
-                "import java.util.concurrent.*;\n" +
-                "import java.util.concurrent.atomic.AtomicReference;\n" +
+                "import java.io.BufferedReader;\n" +
+                "import java.io.InputStreamReader;\n" +
+                "import java.net.HttpURLConnection;\n" +
+                "import java.net.URL;\n" +
+                "import java.util.Base64;\n" +
+                "import java.util.HashMap;\n" +
+                "import java.util.Map;\n" +
                 "\n" +
-                "public class Cube implements Cloneable {\n" +
+                "import org.json.JSONArray;\n" +
+                "import org.json.JSONObject;\n" +
                 "\n" +
-                "    private static final Map<Character, EdgePos> nextEdgePos = Map.of(\n" +
-                "            'R', new EdgePos(new byte[]{0, 5, 2, 3, 4, 9, 1, 7, 8, 6, 10, 11}),\n" +
-                "            'U', new EdgePos(new byte[]{1, 2, 3, 0, 4, 5, 6, 7, 8, 9, 10, 11}),\n" +
-                "            'F', new EdgePos(new byte[]{0, 1, 6, 3, 4, 5, 10, 2, 8, 9, 7, 11}),\n" +
-                "            'B', new EdgePos(new byte[]{4, 1, 2, 3, 8, 0, 6, 7, 5, 9, 10, 11}),\n" +
-                "            'L', new EdgePos(new byte[]{0, 1, 2, 7, 3, 5, 6, 11, 8, 9, 10, 4}),\n" +
-                "            'D', new EdgePos(new byte[]{0, 1, 2, 3, 4, 5, 6, 7, 11, 8, 9, 10})\n" +
-                "    );\n" +
+                "import io.github.cdimascio.dotenv.Dotenv;\n" +
                 "\n" +
-                "    private static final Map<Character, CornerPos> nextCornerPos = Map.of(\n" +
-                "            'R', new CornerPos(new byte[]{0, 5, 1, 3, 4, 6, 2, 7}),\n" +
-                "            'U', new CornerPos(new byte[]{1, 2, 3, 0, 4, 5, 6, 7}),\n" +
-                "            'F', new CornerPos(new byte[]{0, 1, 6, 2, 4, 5, 7, 3}),\n" +
-                "            'B', new CornerPos(new byte[]{4, 0, 2, 3, 5, 1, 6, 7}),\n" +
-                "            'L', new CornerPos(new byte[]{3, 1, 2, 7, 0, 5, 6, 4}),\n" +
-                "            'D', new CornerPos(new byte[]{0, 1, 2, 3, 7, 4, 5, 6})\n" +
-                "    );\n" +
+                "public class GitHubRepoContents {\n" +
                 "\n" +
-                "    private static final Map<Character, List<Map<Byte, Byte>>> nextEdgeOrientation = Map.of(\n" +
-                "            'R', List.of(\n" +
-                "                    Map.of((byte) 3, (byte) 3, (byte) 2, (byte) 2),\n" +
-                "                    Map.of((byte) 3, (byte) 2, (byte) 1, (byte) 1),\n" +
-                "                    Map.of((byte) 3, (byte) 3, (byte) -2, (byte) -2),\n" +
-                "                    Map.of((byte) 3, (byte) 3, (byte) -1, (byte) -1),\n" +
-                "                    Map.of((byte) 2, (byte) 2, (byte) -1, (byte) -1),\n" +
-                "                    Map.of((byte) 2, (byte) -3, (byte) 1, (byte) 1),\n" +
-                "                    Map.of((byte) -2, (byte) 3, (byte) 1, (byte) 1),\n" +
-                "                    Map.of((byte) -2, (byte) -2, (byte) -1, (byte) -1),\n" +
-                "                    Map.of((byte) 2, (byte) 2, (byte) -3, (byte) -3),\n" +
-                "                    Map.of((byte) 1, (byte) 1, (byte) -3, (byte) -2),\n" +
-                "                    Map.of((byte) -3, (byte) -3, (byte) -2, (byte) -2),\n" +
-                "                    Map.of((byte) -3, (byte) -3, (byte) -1, (byte) -1)\n" +
-                "            ),\n" +
-                "            'U', List.of(\n" +
-                "                    Map.of((byte) 3, (byte) 3, (byte) 2, (byte) 1),\n" +
-                "                    Map.of((byte) 3, (byte) 3, (byte) 1, (byte) -2),\n" +
-                "                    Map.of((byte) 3, (byte) 3, (byte) -2, (byte) -1),\n" +
-                "                    Map.of((byte) 3, (byte) 3, (byte) -1, (byte) 2),\n" +
-                "                    Map.of((byte) 2, (byte) 2, (byte) -1, (byte) -1),\n" +
-                "                    Map.of((byte) 2, (byte) 2, (byte) 1, (byte) 1),\n" +
-                "                    Map.of((byte) -2, (byte) -2, (byte) 1, (byte) 1),\n" +
-                "                    Map.of((byte) -2, (byte) -2, (byte) -1, (byte) -1),\n" +
-                "                    Map.of((byte) 2, (byte) 2, (byte) -3, (byte) -3),\n" +
-                "                    Map.of((byte) 1, (byte) 1, (byte) -3, (byte) -3),\n" +
-                "                    Map.of((byte) -3, (byte) -3, (byte) -2, (byte) -2),\n" +
-                "                    Map.of((byte) -3, (byte) -3, (byte) -1, (byte) -1)\n" +
-                "            ),\n" +
-                "            'F', List.of(\n" +
-                "                    Map.of((byte) 3, (byte) 3, (byte) 2, (byte) 2),\n" +
-                "                    Map.of((byte) 3, (byte) 3, (byte) 1, (byte) 1),\n" +
-                "                    Map.of((byte) 3, (byte) 1, (byte) -2, (byte) -2),\n" +
-                "                    Map.of((byte) 3, (byte) 3, (byte) -1, (byte) -1),\n" +
-                "                    Map.of((byte) 2, (byte) 2, (byte) -1, (byte) -1),\n" +
-                "                    Map.of((byte) 2, (byte) 2, (byte) 1, (byte) 1),\n" +
-                "                    Map.of((byte) -2, (byte) -2, (byte) 1, (byte) -3),\n" +
-                "                    Map.of((byte) -2, (byte) -2, (byte) -1, (byte) 3),\n" +
-                "                    Map.of((byte) 2, (byte) 2, (byte) -3, (byte) -3),\n" +
-                "                    Map.of((byte) 1, (byte) 1, (byte) -3, (byte) -3),\n" +
-                "                    Map.of((byte) -3, (byte) -1, (byte) -2, (byte) -2),\n" +
-                "                    Map.of((byte) -3, (byte) -3, (byte) -1, (byte) -1)\n" +
-                "            ),\n" +
-                "            'B', List.of(\n" +
-                "                    Map.of((byte) 3, (byte) -1, (byte) 2, (byte) 2),\n" +
-                "                    Map.of((byte) 3, (byte) 3, (byte) 1, (byte) 1),\n" +
-                "                    Map.of((byte) 3, (byte) 3, (byte) -2, (byte) -2),\n" +
-                "                    Map.of((byte) 3, (byte) 3, (byte) -1, (byte) -1),\n" +
-                "                    Map.of((byte) 2, (byte) 2, (byte) -1, (byte) -3),\n" +
-                "                    Map.of((byte) 2, (byte) 2, (byte) 1, (byte) 3),\n" +
-                "                    Map.of((byte) -2, (byte) -2, (byte) 1, (byte) 1),\n" +
-                "                    Map.of((byte) -2, (byte) -2, (byte) -1, (byte) -1),\n" +
-                "                    Map.of((byte) 2, (byte) 2, (byte) -3, (byte) 1),\n" +
-                "                    Map.of((byte) 1, (byte) 1, (byte) -3, (byte) -3),\n" +
-                "                    Map.of((byte) -3, (byte) -3, (byte) -2, (byte) -2),\n" +
-                "                    Map.of((byte) -3, (byte) -3, (byte) -1, (byte) -1)\n" +
-                "            ),\n" +
-                "            'L', List.of(\n" +
-                "                    Map.of((byte) 3, (byte) 3, (byte) 2, (byte) 2),\n" +
-                "                    Map.of((byte) 3, (byte) 3, (byte) 1, (byte) 1),\n" +
-                "                    Map.of((byte) 3, (byte) 3, (byte) -2, (byte) -2),\n" +
-                "                    Map.of((byte) 3, (byte) -2, (byte) -1, (byte) -1),\n" +
-                "                    Map.of((byte) 2, (byte) 3, (byte) -1, (byte) -1),\n" +
-                "                    Map.of((byte) 2, (byte) 2, (byte) 1, (byte) 1),\n" +
-                "                    Map.of((byte) -2, (byte) -2, (byte) 1, (byte) 1),\n" +
-                "                    Map.of((byte) -2, (byte) -3, (byte) -1, (byte) -1),\n" +
-                "                    Map.of((byte) 2, (byte) 2, (byte) -3, (byte) -3),\n" +
-                "                    Map.of((byte) 1, (byte) 1, (byte) -3, (byte) -3),\n" +
-                "                    Map.of((byte) -3, (byte) -3, (byte) -2, (byte) -2),\n" +
-                "                    Map.of((byte) -3, (byte) 2, (byte) -1, (byte) -1)\n" +
-                "            ),\n" +
-                "            'D', List.of(\n" +
-                "                    Map.of((byte) 3, (byte) 3, (byte) 2, (byte) 2),\n" +
-                "                    Map.of((byte) 3, (byte) 3, (byte) 1, (byte) 1),\n" +
-                "                    Map.of((byte) 3, (byte) 3, (byte) -2, (byte) -2),\n" +
-                "                    Map.of((byte) 3, (byte) 3, (byte) -1, (byte) -1),\n" +
-                "                    Map.of((byte) 2, (byte) 2, (byte) -1, (byte) -1),\n" +
-                "                    Map.of((byte) 2, (byte) 2, (byte) 1, (byte) 1),\n" +
-                "                    Map.of((byte) -2, (byte) -2, (byte) 1, (byte) 1),\n" +
-                "                    Map.of((byte) -2, (byte) -2, (byte) -1, (byte) -1),\n" +
-                "                    Map.of((byte) 2, (byte) -1, (byte) -3, (byte) -3),\n" +
-                "                    Map.of((byte) 1, (byte) 2, (byte) -3, (byte) -3),\n" +
-                "                    Map.of((byte) -3, (byte) -3, (byte) -2, (byte) 1),\n" +
-                "                    Map.of((byte) -3, (byte) -3, (byte) -1, (byte) -2)\n" +
-                "            )\n" +
-                "    );\n" +
+                "    static Dotenv dotenv = Dotenv.configure().load();\n" +
                 "\n" +
-                "    private static final Map<Character, List<Map<Byte, Byte>>> nextCornerOrientation = Map.of(\n" +
-                "            'R', List.of(\n" +
-                "                    Map.of((byte) -1, (byte) -1, (byte) 2, (byte) 2, (byte) 3, (byte) 3),\n" +
-                "                    Map.of((byte) 1, (byte) 1, (byte) 2, (byte) -3, (byte) 3, (byte) 2),\n" +
-                "                    Map.of((byte) 1, (byte) 1, (byte) -2, (byte) 3, (byte) 3, (byte) 2),\n" +
-                "                    Map.of((byte) -1, (byte) -1, (byte) -2, (byte) -2, (byte) 3, (byte) 3),\n" +
-                "                    Map.of((byte) -1, (byte) -1, (byte) 2, (byte) 2, (byte) -3, (byte) -3),\n" +
-                "                    Map.of((byte) 1, (byte) 1, (byte) 2, (byte) -3, (byte) -3, (byte) -2),\n" +
-                "                    Map.of((byte) 1, (byte) 1, (byte) -2, (byte) 3, (byte) -3, (byte) -2),\n" +
-                "                    Map.of((byte) -1, (byte) -1, (byte) -2, (byte) -2, (byte) -3, (byte) -3)\n" +
-                "            ),\n" +
-                "            'U', List.of(\n" +
-                "                    Map.of((byte) -1, (byte) 2, (byte) 2, (byte) 1, (byte) 3, (byte) 3),\n" +
-                "                    Map.of((byte) 1, (byte) -2, (byte) 2, (byte) 1, (byte) 3, (byte) 3),\n" +
-                "                    Map.of((byte) 1, (byte) -2, (byte) -2, (byte) -1, (byte) 3, (byte) 3),\n" +
-                "                    Map.of((byte) -1, (byte) 2, (byte) -2, (byte) -1, (byte) 3, (byte) 3),\n" +
-                "                    Map.of((byte) -1, (byte) -1, (byte) 2, (byte) 2, (byte) -3, (byte) -3),\n" +
-                "                    Map.of((byte) 1, (byte) 1, (byte) 2, (byte) 2, (byte) -3, (byte) -3),\n" +
-                "                    Map.of((byte) 1, (byte) 1, (byte) -2, (byte) -2, (byte) -3, (byte) -3),\n" +
-                "                    Map.of((byte) -1, (byte) -1, (byte) -2, (byte) -2, (byte) -3, (byte) -3)\n" +
-                "            ),\n" +
-                "            'F', List.of(\n" +
-                "                    Map.of((byte) -1, (byte) -1, (byte) 2, (byte) 2, (byte) 3, (byte) 3),\n" +
-                "                    Map.of((byte) 1, (byte) 1, (byte) 2, (byte) 2, (byte) 3, (byte) 3),\n" +
-                "                    Map.of((byte) 1, (byte) -3, (byte) -2, (byte) -2, (byte) 3, (byte) 1),\n" +
-                "                    Map.of((byte) -1, (byte) 3, (byte) -2, (byte) -2, (byte) 3, (byte) 1),\n" +
-                "                    Map.of((byte) -1, (byte) -1, (byte) 2, (byte) 2, (byte) -3, (byte) -3),\n" +
-                "                    Map.of((byte) 1, (byte) 1, (byte) 2, (byte) 2, (byte) -3, (byte) -3),\n" +
-                "                    Map.of((byte) 1, (byte) -3, (byte) -2, (byte) -2, (byte) -3, (byte) -1),\n" +
-                "                    Map.of((byte) -1, (byte) 3, (byte) -2, (byte) -2, (byte) -3, (byte) -1)\n" +
-                "            ),\n" +
-                "            'B', List.of(\n" +
-                "                    Map.of((byte) -1, (byte) -3, (byte) 2, (byte) 2, (byte) 3, (byte) -1),\n" +
-                "                    Map.of((byte) 1, (byte) 3, (byte) 2, (byte) 2, (byte) 3, (byte) -1),\n" +
-                "                    Map.of((byte) 1, (byte) 1, (byte) -2, (byte) -2, (byte) 3, (byte) 3),\n" +
-                "                    Map.of((byte) -1, (byte) -1, (byte) -2, (byte) -2, (byte) 3, (byte) 3),\n" +
-                "                    Map.of((byte) -1, (byte) -3, (byte) 2, (byte) 2, (byte) -3, (byte) 1),\n" +
-                "                    Map.of((byte) 1, (byte) 3, (byte) 2, (byte) 2, (byte) -3, (byte) 1),\n" +
-                "                    Map.of((byte) 1, (byte) 1, (byte) -2, (byte) -2, (byte) -3, (byte) -3),\n" +
-                "                    Map.of((byte) -1, (byte) -1, (byte) -2, (byte) -2, (byte) -3, (byte) -3)\n" +
-                "            ),\n" +
-                "            'L', List.of(\n" +
-                "                    Map.of((byte) -1, (byte) -1, (byte) 2, (byte) 3, (byte) 3, (byte) -2),\n" +
-                "                    Map.of((byte) 1, (byte) 1, (byte) 2, (byte) 2, (byte) 3, (byte) 3),\n" +
-                "                    Map.of((byte) 1, (byte) 1, (byte) -2, (byte) -2, (byte) 3, (byte) 3),\n" +
-                "                    Map.of((byte) -1, (byte) -1, (byte) -2, (byte) -3, (byte) 3, (byte) -2),\n" +
-                "                    Map.of((byte) -1, (byte) -1, (byte) 2, (byte) 3, (byte) -3, (byte) 2),\n" +
-                "                    Map.of((byte) 1, (byte) 1, (byte) 2, (byte) 2, (byte) -3, (byte) -3),\n" +
-                "                    Map.of((byte) 1, (byte) 1, (byte) -2, (byte) -2, (byte) -3, (byte) -3),\n" +
-                "                    Map.of((byte) -1, (byte) -1, (byte) -2, (byte) -3, (byte) -3, (byte) 2)\n" +
-                "            ),\n" +
-                "            'D', List.of(\n" +
-                "                    Map.of((byte) -1, (byte) -1, (byte) 2, (byte) 2, (byte) 3, (byte) 3),\n" +
-                "                    Map.of((byte) 1, (byte) 1, (byte) 2, (byte) 2, (byte) 3, (byte) 3),\n" +
-                "                    Map.of((byte) 1, (byte) 1, (byte) -2, (byte) -2, (byte) 3, (byte) 3),\n" +
-                "                    Map.of((byte) -1, (byte) -1, (byte) -2, (byte) -2, (byte) 3, (byte) 3),\n" +
-                "                    Map.of((byte) -1, (byte) -2, (byte) 2, (byte) -1, (byte) -3, (byte) -3),\n" +
-                "                    Map.of((byte) 1, (byte) 2, (byte) 2, (byte) -1, (byte) -3, (byte) -3),\n" +
-                "                    Map.of((byte) 1, (byte) 2, (byte) -2, (byte) 1, (byte) -3, (byte) -3),\n" +
-                "                    Map.of((byte) -1, (byte) -2, (byte) -2, (byte) 1, (byte) -3, (byte) -3)\n" +
-                "            )\n" +
-                "    );\n" +
+                "    private static final String OWNER = \"Ryuzaki5100\";\n" +
+                "    private static final String REPO = \"rbxcb\";\n" +
+                "    private static final String BRANCH = \"master\"; // Specify the branch you want to access\n" +
+                "    private static final String TOKEN = dotenv.get(\"PERSONAL_ACCESS_TOKEN\");\n" +
+                "    private static final int RATE_LIMIT_DELAY = 1000; // Delay in milliseconds to avoid rate limiting\n" +
                 "\n" +
-                "    private static final byte[][] edgeList = {\n" +
-                "            {1, 37},\n" +
-                "            {5, 28},\n" +
-                "            {7, 19},\n" +
-                "            {3, 10},\n" +
-                "            {12, 41},\n" +
-                "            {32, 39},\n" +
-                "            {23, 30},\n" +
-                "            {14, 21},\n" +
-                "            {43, 52},\n" +
-                "            {34, 50},\n" +
-                "            {25, 46},\n" +
-                "            {16, 48}\n" +
-                "    };\n" +
+                "    private static Map<String, Long> rateLimitHeaders = new HashMap<>();\n" +
                 "\n" +
-                "    private static final byte[][] cornerList = {\n" +
-                "            {0, 9, 38},\n" +
-                "            {2, 29, 36},\n" +
-                "            {8, 20, 27},\n" +
-                "            {6, 11, 18},\n" +
-                "            {15, 44, 51},\n" +
-                "            {35, 42, 53},\n" +
-                "            {26, 33, 47},\n" +
-                "            {17, 24, 45}\n" +
-                "    };\n" +
+                "    public static void main(String[] args) {\n" +
+                "        try {\n" +
+                "            // List the file structure\n" +
+                "//            listFileStructure(OWNER, REPO, BRANCH, \"\");\n" +
                 "\n" +
-                "    private static final Map<Character, Byte> binEncoding = Map.of(\n" +
-                "            'U', (byte) 0b100000,\n" +
-                "            'L', (byte) 0b010000,\n" +
-                "            'F', (byte) 0b001000,\n" +
-                "            'R', (byte) 0b000100,\n" +
-                "            'B', (byte) 0b000010,\n" +
-                "            'D', (byte) 0b000001\n" +
-                "    );\n" +
-                "\n" +
-                "    private static final Map<Character, Byte> priority = Map.of(\n" +
-                "            'U', (byte) 2,\n" +
-                "            'L', (byte) 0,\n" +
-                "            'F', (byte) 1,\n" +
-                "            'R', (byte) 0,\n" +
-                "            'B', (byte) 1,\n" +
-                "            'D', (byte) 2\n" +
-                "    );\n" +
-                "\n" +
-                "    private static final Map<Byte, Byte> edgeNumberForPos;\n" +
-                "    private static final Map<Byte, Byte> cornerNumberForPos;\n" +
-                "\n" +
-                "    static {\n" +
-                "        Map<Byte, Byte> edgeMap = new HashMap<>();\n" +
-                "        edgeMap.put((byte) 0b100010, (byte) 0);\n" +
-                "        edgeMap.put((byte) 0b100100, (byte) 1);\n" +
-                "        edgeMap.put((byte) 0b101000, (byte) 2);\n" +
-                "        edgeMap.put((byte) 0b110000, (byte) 3);\n" +
-                "        edgeMap.put((byte) 0b010010, (byte) 4);\n" +
-                "        edgeMap.put((byte) 0b000110, (byte) 5);\n" +
-                "        edgeMap.put((byte) 0b001100, (byte) 6);\n" +
-                "        edgeMap.put((byte) 0b011000, (byte) 7);\n" +
-                "        edgeMap.put((byte) 0b000011, (byte) 8);\n" +
-                "        edgeMap.put((byte) 0b000101, (byte) 9);\n" +
-                "        edgeMap.put((byte) 0b001001, (byte) 10);\n" +
-                "        edgeMap.put((byte) 0b010001, (byte) 11);\n" +
-                "\n" +
-                "        edgeNumberForPos = Collections.unmodifiableMap(edgeMap);\n" +
-                "\n" +
-                "        Map<Byte, Byte> cornerMap = new HashMap<>();\n" +
-                "        cornerMap.put((byte) 0b110010, (byte) 0);\n" +
-                "        cornerMap.put((byte) 0b100110, (byte) 1);\n" +
-                "        cornerMap.put((byte) 0b101100, (byte) 2);\n" +
-                "        cornerMap.put((byte) 0b111000, (byte) 3);\n" +
-                "        cornerMap.put((byte) 0b010011, (byte) 4);\n" +
-                "        cornerMap.put((byte) 0b000111, (byte) 5);\n" +
-                "        cornerMap.put((byte) 0b001101, (byte) 6);\n" +
-                "        cornerMap.put((byte) 0b011001, (byte) 7);\n" +
-                "\n" +
-                "        cornerNumberForPos = Collections.unmodifiableMap(cornerMap);\n" +
-                "    }\n" +
-                "\n" +
-                "    public static final int[][] edgePossiblePlacesStage3 = {\n" +
-                "            {1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0},\n" +
-                "            {0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1},\n" +
-                "            {1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0},\n" +
-                "            {0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1},\n" +
-                "            {0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0},\n" +
-                "            {0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0},\n" +
-                "            {0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0},\n" +
-                "            {0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0},\n" +
-                "            {1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0},\n" +
-                "            {0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1},\n" +
-                "            {1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0},\n" +
-                "            {0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1}};\n" +
-                "\n" +
-                "    public static final int[][] cornerPossiblePlacesStage3 = {\n" +
-                "            {1, 0, 1, 0, 0, 1, 0, 1},\n" +
-                "            {0, 1, 0, 1, 1, 0, 1, 0},\n" +
-                "            {1, 0, 1, 0, 0, 1, 0, 1},\n" +
-                "            {0, 1, 0, 1, 1, 0, 1, 0},\n" +
-                "            {0, 1, 0, 1, 1, 0, 1, 0},\n" +
-                "            {1, 0, 1, 0, 0, 1, 0, 1},\n" +
-                "            {0, 1, 0, 1, 1, 0, 1, 0},\n" +
-                "            {1, 0, 1, 0, 0, 1, 0, 1}};\n" +
-                "\n" +
-                "    private Edge edge;\n" +
-                "    private Corner corner;\n" +
-                "\n" +
-                "    public Cube() {\n" +
-                "        this.edge = new Edge();\n" +
-                "        this.corner = new Corner();\n" +
-                "    }\n" +
-                "\n" +
-                "    public Cube(Cube c) {\n" +
-                "        this.setEdge(new Edge(c.getEdge()));\n" +
-                "        this.setCorner(new Corner(c.getCorner()));\n" +
-                "    }\n" +
-                "\n" +
-                "    public Cube(Edge edge, Corner corner) {\n" +
-                "        this.edge = edge;\n" +
-                "        this.corner = corner;\n" +
-                "    }\n" +
-                "\n" +
-                "    public Cube(String colorInput) {\n" +
-                "        Cube c = new Cube();\n" +
-                "        EdgePos edgePos = c.getEdge().getEdgePos();\n" +
-                "        EdgeOrientation edgeOrientation = c.getEdge().getEdgeOrientation();\n" +
-                "        CornerPos cornerPos = c.getCorner().getCornerPos();\n" +
-                "        CornerOrientation cornerOrientation = c.getCorner().getCornerOrientation();\n" +
-                "        byte[] basicPositionsInfo = {4, 13, 22, 31, 40, 49}, basicOrientationInfo = {3, -1, -2, 1, 2, -3};\n" +
-                "        String basicPositions = \"ULFRBD\";\n" +
-                "        StringBuilder givenPositions = new StringBuilder();\n" +
-                "        HashMap<Character, Character> colorToSide = new HashMap<>();\n" +
-                "        for (int i = 0; i < basicOrientationInfo.length; i++)\n" +
-                "            givenPositions.append(colorInput.charAt(basicPositionsInfo[i]));\n" +
-                "        for (int i = 0; i < 6; i++)\n" +
-                "            colorToSide.put(givenPositions.charAt(i), basicPositions.charAt(i));\n" +
-                "        byte tempCounter = 0;\n" +
-                "        for (byte[] bytes : edgeList) {\n" +
-                "            char side1 = colorToSide.get(colorInput.charAt(bytes[0]));\n" +
-                "            char side2 = colorToSide.get(colorInput.charAt(bytes[1]));\n" +
-                "            byte binaryNum = (byte) (binEncoding.get(side1) ^ binEncoding.get(side2));\n" +
-                "            edgePos.setVal(edgeNumberForPos.get(binaryNum), tempCounter++);\n" +
-                "            byte priorityNumber = (byte) Math.max(priority.get(side1), priority.get(side2));\n" +
-                "            byte referenceNumber = priorityNumber == priority.get(side1) ? bytes[0] : bytes[1];\n" +
-                "            edgeOrientation.setVal(edgeNumberForPos.get(binaryNum), basicOrientationInfo[referenceNumber / 9]);\n" +
+                "            // Retrieve and print the contents of a specific file\n" +
+                "            String filePath = \"demo/src/main/java/com/devdocs/demo/DemoApplication.java\";\n" +
+                "            String fileContents = getFileContents(OWNER, REPO, BRANCH, filePath);\n" +
+                "//            System.out.println(fileContents);\n" +
+                "//            System.out.println(\"Contents of \" + filePath + \":\");\n" +
+                "//            System.out.println(fileContents);\n" +
+                "            System.out.println(SimpleJavaParser.parseJavaCode(fileContents));\n" +
+                "        } catch (Exception e) {\n" +
+                "            e.printStackTrace();\n" +
                 "        }\n" +
-                "        tempCounter = 0;\n" +
-                "        for (byte[] bytes : cornerList) {\n" +
-                "            char side1 = colorToSide.get(colorInput.charAt(bytes[0]));\n" +
-                "            char side2 = colorToSide.get(colorInput.charAt(bytes[1]));\n" +
-                "            char side3 = colorToSide.get(colorInput.charAt(bytes[2]));\n" +
-                "            byte binaryNum = (byte) (binEncoding.get(side1) ^ binEncoding.get(side2) ^ binEncoding.get(side3));\n" +
-                "            cornerPos.setVal(cornerNumberForPos.get(binaryNum), tempCounter++);\n" +
-                "            byte priorityNumber = (byte) Math.max(priority.get(side1), Math.max(priority.get(side2), priority.get(side3)));\n" +
-                "            byte referenceNumber = priorityNumber == priority.get(side1) ? bytes[0] : (priorityNumber == priority.get(side2) ? bytes[1] : bytes[2]);\n" +
-                "            cornerOrientation.setVal(cornerNumberForPos.get((binaryNum)), basicOrientationInfo[referenceNumber / 9]);\n" +
-                "        }\n" +
-                "        this.setEdge(new Edge(edgePos, edgeOrientation));\n" +
-                "        this.setCorner(new Corner(cornerPos, cornerOrientation));\n" +
                 "    }\n" +
                 "\n" +
-                "    @Override\n" +
-                "    public Cube clone() {\n" +
-                "        return new Cube(this.getEdge().clone(), this.getCorner().clone());\n" +
-                "    }\n" +
+                "    public static void listFileStructure(String owner, String repo, String branch, String path) throws Exception {\n" +
+                "        String urlString = String.format(\"https://api.github.com/repos/%s/%s/contents/%s?ref=%s\", owner, repo, path, branch);\n" +
+                "        URL url = new URL(urlString);\n" +
+                "        HttpURLConnection connection = (HttpURLConnection) url.openConnection();\n" +
+                "        connection.setRequestMethod(\"GET\");\n" +
+                "        connection.setRequestProperty(\"Authorization\", \"token \" + TOKEN);\n" +
+                "        connection.setRequestProperty(\"Accept\", \"application/vnd.github.v3+json\");\n" +
                 "\n" +
-                "    public static Cube execute(Cube c, String s) {\n" +
-                "        Cube temp = c.clone();\n" +
-                "        String[] moves = s.split(\" \");\n" +
-                "        if (moves.length > 1) {\n" +
-                "            StringBuilder sBuilder = new StringBuilder();\n" +
-                "            for (String string : moves) {\n" +
-                "                if (string.length() == 1)\n" +
-                "                    sBuilder.append(string.charAt(0));\n" +
-                "                else if (string.charAt(1) == '2')\n" +
-                "                    sBuilder.append(String.valueOf(string.charAt(0)).repeat(2));\n" +
-                "                else\n" +
-                "                    sBuilder.append(String.valueOf(string.charAt(0)).repeat(3));\n" +
+                "        checkRateLimit(connection);\n" +
+                "\n" +
+                "        int responseCode = connection.getResponseCode();\n" +
+                "        if (responseCode == 200) {\n" +
+                "            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));\n" +
+                "            String inputLine;\n" +
+                "            StringBuilder content = new StringBuilder();\n" +
+                "            while ((inputLine = in.readLine()) != null) {\n" +
+                "                content.append(inputLine);\n" +
                 "            }\n" +
-                "            s = sBuilder.toString();\n" +
-                "        }\n" +
-                "        for (int i = 0; i < s.length(); i++) {\n" +
-                "            char ch = s.charAt(i);\n" +
-                "            EdgePos edgePos = temp.getEdge().getEdgePos().clone();\n" +
-                "            EdgeOrientation edgeOrientation = temp.getEdge().getEdgeOrientation().clone();\n" +
-                "            for (int j = 0; j < 12; j++) {\n" +
-                "                edgeOrientation.setVal(j, nextEdgeOrientation.get(ch).get(edgePos.getVal()[j]).get(edgeOrientation.getVal()[j]));\n" +
-                "                edgePos.setVal(j, nextEdgePos.get(ch).getVal()[edgePos.getVal()[j]]);\n" +
+                "            in.close();\n" +
+                "            connection.disconnect();\n" +
+                "\n" +
+                "            JSONArray contents = new JSONArray(content.toString());\n" +
+                "            for (int i = 0; i < contents.length(); i++) {\n" +
+                "                JSONObject item = contents.getJSONObject(i);\n" +
+                "                if (item.getString(\"type\").equals(\"file\")) {\n" +
+                "                    System.out.println(\"File: \" + item.getString(\"path\"));\n" +
+                "                } else if (item.getString(\"type\").equals(\"dir\")) {\n" +
+                "                    System.out.println(\"Directory: \" + item.getString(\"path\"));\n" +
+                "                    listFileStructure(owner, repo, branch, item.getString(\"path\"));\n" +
+                "                }\n" +
                 "            }\n" +
-                "            temp.setEdge(new Edge(edgePos, edgeOrientation));\n" +
-                "            CornerPos cornerPos = temp.getCorner().getCornerPos().clone();\n" +
-                "            CornerOrientation cornerOrientation = temp.getCorner().getCornerOrientation().clone();\n" +
-                "            for (int j = 0; j < 8; j++) {\n" +
-                "                cornerOrientation.setVal(j, nextCornerOrientation.get(ch).get(cornerPos.getVal()[j]).get(cornerOrientation.getVal()[j]));\n" +
-                "                cornerPos.setVal(j, nextCornerPos.get(ch).getVal()[cornerPos.getVal()[j]]);\n" +
-                "            }\n" +
-                "            temp.setCorner(new Corner(cornerPos, cornerOrientation));\n" +
+                "        } else {\n" +
+                "            handleErrorResponse(connection);\n" +
                 "        }\n" +
-                "        return temp;\n" +
                 "    }\n" +
                 "\n" +
-                "    public static String reverseAlgorithm(String s) {\n" +
-                "        StringBuilder result = new StringBuilder();\n" +
-                "        for (int i = 0; i < s.length(); i++)\n" +
-                "            result.append(String.valueOf(s.charAt(i)).repeat(3));\n" +
-                "        return new StringBuilder(result.toString()).reverse().toString();\n" +
+                "    public static String getFileContents(String owner, String repo, String branch, String path) throws Exception {\n" +
+                "        String urlString = String.format(\"https://api.github.com/repos/%s/%s/contents/%s?ref=%s\", owner, repo, path, branch);\n" +
+                "        URL url = new URL(urlString);\n" +
+                "        HttpURLConnection connection = (HttpURLConnection) url.openConnection();\n" +
+                "        connection.setRequestMethod(\"GET\");\n" +
+                "        connection.setRequestProperty(\"Authorization\", \"token \" + TOKEN);\n" +
+                "        connection.setRequestProperty(\"Accept\", \"application/vnd.github.v3+json\");\n" +
+                "\n" +
+                "        checkRateLimit(connection);\n" +
+                "\n" +
+                "        int responseCode = connection.getResponseCode();\n" +
+                "        if (responseCode == 200) {\n" +
+                "            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));\n" +
+                "            String inputLine;\n" +
+                "            StringBuilder content = new StringBuilder();\n" +
+                "            while ((inputLine = in.readLine()) != null) {\n" +
+                "                content.append(inputLine);\n" +
+                "            }\n" +
+                "            in.close();\n" +
+                "            connection.disconnect();\n" +
+                "\n" +
+                "            JSONObject fileJson = new JSONObject(content.toString());\n" +
+                "            String encodedContent = fileJson.getString(\"content\").replaceAll(\"\\\\n\", \"\");\n" +
+                "            return new String(Base64.getDecoder().decode(encodedContent));\n" +
+                "        } else {\n" +
+                "            handleErrorResponse(connection);\n" +
+                "            return null;\n" +
+                "        }\n" +
                 "    }\n" +
                 "\n" +
-                "    public static ArrayList<String> getAlgorithm(String moves) {\n" +
-                "        class Temp {\n" +
-                "            final char ch;\n" +
-                "            final byte b;\n" +
-                "            public Temp(char ch, byte b) {\n" +
-                "                this.ch = ch;\n" +
-                "                this.b = b;\n" +
+                "    private static void checkRateLimit(HttpURLConnection connection) {\n" +
+                "        if (rateLimitHeaders.containsKey(\"X-RateLimit-Remaining\") && rateLimitHeaders.get(\"X-RateLimit-Remaining\") == 0) {\n" +
+                "            try {\n" +
+                "                Thread.sleep(RATE_LIMIT_DELAY);\n" +
+                "            } catch (InterruptedException e) {\n" +
+                "                e.printStackTrace();\n" +
                 "            }\n" +
                 "        }\n" +
-                "        Stack<Temp> s = new Stack<>();\n" +
-                "        ArrayList<String> v = new ArrayList<>(Arrays.asList(\"\", \"\", \"2\", \"'\"));\n" +
-                "        ArrayList<String> result = new ArrayList<>();\n" +
-                "        for (int i = 0; i < moves.length(); i++) {\n" +
-                "            if (s.isEmpty() || s.peek().ch != moves.charAt(i))\n" +
-                "                s.push(new Temp(moves.charAt(i), (byte) 1));\n" +
-                "            else {\n" +
-                "                Temp x = s.pop();\n" +
-                "                if (x.b != (byte) 3)\n" +
-                "                    s.push(new Temp(x.ch, (byte) (x.b + 1)));\n" +
-                "            }\n" +
+                "    }\n" +
+                "\n" +
+                "    private static void handleErrorResponse(HttpURLConnection connection) throws Exception {\n" +
+                "        int responseCode = connection.getResponseCode();\n" +
+                "        System.out.println(\"Failed to retrieve contents: \" + responseCode);\n" +
+                "        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getErrorStream()));\n" +
+                "        String inputLine;\n" +
+                "        StringBuilder content = new StringBuilder();\n" +
+                "        while ((inputLine = in.readLine()) != null) {\n" +
+                "            content.append(inputLine);\n" +
                 "        }\n" +
-                "        while (!s.isEmpty()) {\n" +
-                "            Temp x = s.pop();\n" +
-                "            if (x.b != 0)\n" +
-                "                result.add(0, x.ch + v.get(x.b));\n" +
-                "        }\n" +
-                "        return result;\n" +
+                "        in.close();\n" +
+                "        connection.disconnect();\n" +
+                "        System.out.println(content.toString());\n" +
                 "    }\n" +
                 "\n" +
-                "    @Override\n" +
-                "    public String toString() {\n" +
-                "        return \"Cube{\\n\" +\n" +
-                "                \"edge=\" + edge.toString() +\n" +
-                "                \",\\ncorner=\" + corner.toString() +\n" +
-                "                \"\\n}\";\n" +
-                "    }\n" +
                 "\n" +
-                "    public Edge getEdge() {\n" +
-                "        return edge;\n" +
-                "    }\n" +
-                "\n" +
-                "    public void setEdge(Edge edge) {\n" +
-                "        this.edge = edge;\n" +
-                "    }\n" +
-                "\n" +
-                "    public Corner getCorner() {\n" +
-                "        return corner;\n" +
-                "    }\n" +
-                "\n" +
-                "    public void setCorner(Corner corner) {\n" +
-                "        this.corner = corner;\n" +
-                "    }\n" +
-                "}\n" +
-                "\n" +
-                "// U2 L2 F R D R F R F' L' B U2 F R2 L2 F' U2 B L2 B\n";
+                "}\n";
 
         System.out.println(SimpleJavaParser.parseCodeToJSON(javaCode));
     }
