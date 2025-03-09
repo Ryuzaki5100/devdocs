@@ -68,7 +68,8 @@ for /f "usebackq tokens=*" %%i in ("%java_files%") do (
         --data-urlencode "owner=%GH_OWNER%" ^
         --data-urlencode "repo=%GH_REPO%" ^
         --data-urlencode "branch=%GH_BRANCH%" ^
-        --data-urlencode "filePath=!escaped_path!" -o temp.json
+        --data-urlencode "filePath=!escaped_path!" ^
+        --verbose -o temp.json
 
     echo API Response for !filePath!:
     type temp.json
