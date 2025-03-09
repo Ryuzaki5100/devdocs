@@ -2,7 +2,6 @@ FROM openjdk:19-jdk AS build
 WORKDIR /app
 
 # Copy only necessary files first
-COPY mvnw .
 COPY . .
 
 # Ensure `mvnw` is executable
