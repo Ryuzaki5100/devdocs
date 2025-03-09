@@ -3,18 +3,16 @@ name: Generate Documentation
 on:
   push:
     branches:
-      - '*'
+      - develop
 
 jobs:
   generate-docs:
     runs-on: windows-latest
 
     steps:
-      # Checkout the repository
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Install curl directly (Solution 2 from previous response)
       - name: Install curl
         run: |
           mkdir curl-install
@@ -27,29 +25,23 @@ jobs:
           echo %GITHUB_WORKSPACE%>> %GITHUB_PATH%
         shell: cmd
 
-      # Verify curl is available (optional debugging step)
-      - name: Verify curl
-        run: where curl || echo "curl not found"
-        shell: cmd
-
-      # Run the first batch file to generate java_files.txt
       - name: Generate java_files.txt
         run: batch_files\generateFileStructure.bat
         shell: cmd
 
-      # Run the second batch file to process java_files.txt and create JSON
       - name: Process java_files.txt and Generate JSON
-        run: batch_files\generateChunks.bat
+        run: |
+          cd batch_files
+          call setEnv.bat
+          call generateChunks.bat
         shell: cmd
 
-      # Configure Git
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
         shell: cmd
 
-      # Stage and commit the generated files
       - name: Commit Generated Files
         run: |
           cd batch_files
