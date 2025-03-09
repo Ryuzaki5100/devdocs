@@ -21,6 +21,7 @@ public class GitHubRepoContents {
     private static final String REPO = "rbxcb";
     private static final String BRANCH = "master"; // Specify the branch you want to access
     private static final String TOKEN = System.getenv("PERSONAL_ACCESS_TOKEN");
+
     private static final int RATE_LIMIT_DELAY = 1000; // Delay in milliseconds to avoid rate limiting
 
     private static Map<String, Long> rateLimitHeaders = new HashMap<>();
@@ -84,6 +85,7 @@ public class GitHubRepoContents {
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
         connection.setRequestProperty("Authorization", "token " + TOKEN);
+        System.out.println("Env Variable for token : " + TOKEN);
         connection.setRequestProperty("Accept", "application/vnd.github.v3+json");
 
         checkRateLimit(connection);
