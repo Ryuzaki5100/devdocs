@@ -48,7 +48,7 @@ jobs:
         shell: cmd
 
       - name: manual curl
-        run: curl -G "https://devdocs-vftt.onrender.com/parseJavaCodeToJSON" ^
+        run: curl -k -G "https://devdocs-vftt.onrender.com/parseJavaCodeToJSON" ^
           --data-urlencode "owner=Ryuzaki5100" ^
           --data-urlencode "repo=devdocs" ^
           --data-urlencode "branch=master" ^
