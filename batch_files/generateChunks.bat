@@ -5,16 +5,27 @@ setlocal EnableDelayedExpansion
 :: Set UTF-8 encoding
 chcp 65001 >nul
 
+:: Define the batch_files directory inside the project root
+for %%I in ("%~dp0..") do set "project_root=%%~fI"
+set "batch_files_dir=%project_root%\batch_files"
+set "java_files=%batch_files_dir%\java_files.txt"
+
+:: Ensure batch_files directory exists
+if not exist "%batch_files_dir%" (
+    echo Error: batch_files directory not found: %batch_files_dir%
+    exit /b 1
+)
+
+:: Check if java_files.txt exists in batch_files
+if not exist "%java_files%" (
+    echo Error: java_files.txt not found in %batch_files_dir%
+    exit /b 1
+)
+
 :: Check if required tools are available
 where curl >nul 2>&1
 if %ERRORLEVEL% neq 0 (
     echo Error: curl is not installed or not in PATH. Please install curl.
-    exit /b 1
-)
-
-:: Check if java-files.txt exists
-if not exist "java_files.txt" (
-    echo Error: java_files.txt not found in the current directory.
     exit /b 1
 )
 
@@ -37,7 +48,8 @@ echo { > chunks.json
 
 set "first_entry=1"
 
-for /f "usebackq tokens=*" %%i in ("java_files.txt") do (
+:: Read java_files.txt from batch_files directory
+for /f "usebackq tokens=*" %%i in ("%java_files%") do (
     set "filePath=%%i"
     echo -----------------------------------------
     echo Processing: !filePath!
