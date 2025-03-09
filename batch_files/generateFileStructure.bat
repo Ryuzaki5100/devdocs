@@ -1,13 +1,13 @@
 @echo off
 setlocal enabledelayedexpansion
 
-REM Define the batch_files directory
-set "batch_files_dir=%~dp0batch_files"
+REM Define batch_files directory inside project root
+set "batch_files_dir=%project_root%\batch_files"
 
 REM Ensure batch_files directory exists
 if not exist "%batch_files_dir%" mkdir "%batch_files_dir%"
 
-REM Define the output file inside batch_files
+REM Define output file inside batch_files
 set "output_file=%batch_files_dir%\java_files.txt"
 
 REM Clear the output file if it already exists
