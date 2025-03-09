@@ -52,7 +52,7 @@ for /f "usebackq tokens=*" %%i in ("java_files.txt") do (
     echo API Path: !escaped_path!
 
     :: Fetch the response
-    curl -G -s "http://localhost:8080/parseJavaCodeToJSON" ^
+    curl -G -s "https://devdocs-vftt.onrender.com/parseJavaCodeToJSON" ^
         --data-urlencode "owner=%GH_OWNER%" ^
         --data-urlencode "repo=%GH_REPO%" ^
         --data-urlencode "branch=%GH_BRANCH%" ^
