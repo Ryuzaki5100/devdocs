@@ -68,7 +68,7 @@ jobs:
           GH_BRANCH: ${{ github.ref_name }}
 
       - name: print Stuff again
-        run: type chunks.json
+        run: type batch_files\chunks.json
         shell: cmd
 
       - name: Configure Git
