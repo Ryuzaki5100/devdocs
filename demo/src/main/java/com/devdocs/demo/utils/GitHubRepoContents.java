@@ -11,16 +11,16 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-//import io.github.cdimascio.dotenv.Dotenv;
+import io.github.cdimascio.dotenv.Dotenv;
 
 public class GitHubRepoContents {
 
-//     static Dotenv dotenv = Dotenv.configure().load();
+     static Dotenv dotenv = Dotenv.configure().load();
 
     private static final String OWNER = "Ryuzaki5100";
     private static final String REPO = "rbxcb";
     private static final String BRANCH = "master"; // Specify the branch you want to access
-    private static final String TOKEN = System.getenv("PERSONAL_ACCESS_TOKEN");
+    private static final String TOKEN = dotenv.get("PERSONAL_ACCESS_TOKEN");
 
     private static final int RATE_LIMIT_DELAY = 1000; // Delay in milliseconds to avoid rate limiting
 
