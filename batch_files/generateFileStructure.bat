@@ -1,11 +1,17 @@
 @echo off
 setlocal enabledelayedexpansion
 
-REM Define the output file
-set output_file=java_files.txt
+REM Define the batch_files directory
+set "batch_files_dir=%~dp0batch_files"
+
+REM Ensure batch_files directory exists
+if not exist "%batch_files_dir%" mkdir "%batch_files_dir%"
+
+REM Define the output file inside batch_files
+set "output_file=%batch_files_dir%\java_files.txt"
 
 REM Clear the output file if it already exists
-type nul > %output_file%
+type nul > "%output_file%"
 
 REM Get the project root (assuming batch file is in a subfolder of project root)
 for %%I in ("%~dp0..") do set "project_root=%%~fI"
@@ -26,7 +32,7 @@ for /r "%project_root%" %%f in (*.java) do (
     REM Convert backslashes to forward slashes
     set "relative_path=!relative_path:\=/!"
 
-    echo(!relative_path! >> %output_file%
+    echo(!relative_path! >> "%output_file%"
 )
 
 REM Check if anything was written

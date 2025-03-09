@@ -1,5 +1,5 @@
 @echo off
-call setEnv.bat
+:: call setEnv.bat
 setlocal EnableDelayedExpansion
 
 :: Set UTF-8 encoding
