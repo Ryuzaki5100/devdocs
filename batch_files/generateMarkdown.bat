@@ -1,28 +1,33 @@
-@echo off
+@echo on
 setlocal enabledelayedexpansion
 
-:: Ensure the docs directory exists
-if not exist docs mkdir docs
+:: Define absolute docs path
+set "DOCS_DIR=%GITHUB_WORKSPACE%\docs"
 
-:: Read the JSON file line by line
-for /f "delims=" %%i in (batch_files\output.json) do (
-    set "line=%%i"
+:: Ensure docs directory exists
+if not exist "%DOCS_DIR%" mkdir "%DOCS_DIR%"
 
-    :: Extract key (filename) and value (documentation content)
-    for /f "tokens=1,2 delims=:" %%a in ("!line!") do (
-        set "filename=%%a"
-        set "content=%%b"
+:: Check if output.json exists
+if not exist "%GITHUB_WORKSPACE%\batch_files\output.json" (
+    echo Error: output.json not found!
+    exit /b 1
+)
 
-        :: Remove quotes and unwanted characters
-        set "filename=!filename:"=!"
-        set "content=!content:"=!"
+:: Read output.json and generate Markdown files
+for /f "tokens=1,2 delims=:" %%a in (%GITHUB_WORKSPACE%\batch_files\output.json) do (
+    set "filename=%%a"
+    set "content=%%b"
 
-        :: Convert Java file name to Markdown file name
-        set "filename=!filename:.java=.md!"
+    :: Remove extra characters (quotes, spaces)
+    set "filename=!filename:"=!"
+    set "content=!content:"=!"
 
-        :: Save content to markdown file
-        echo !content! > docs\!filename!
-    )
+    :: Convert Java filename to Markdown
+    set "filename=!filename:.java=.md!"
+
+    echo !content! > "%DOCS_DIR%\!filename!"
+    echo Created "%DOCS_DIR%\!filename!"
 )
 
 echo Markdown files generated successfully.
+exit /b 0
