@@ -95,7 +95,7 @@ jobs:
         shell: cmd
 
       - name: List files in docs directory
-        run: dir docs /s /b
+        run: dir docs
         shell: cmd
 
       - name: Commit and Push Generated Files
