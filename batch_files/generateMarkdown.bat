@@ -21,17 +21,17 @@ REM Read JSON and parse key-value pairs using PowerShell
 powershell -Command ^
     "$json = Get-Content -Raw '%INPUT_FILE%' | ConvertFrom-Json;" ^
     "foreach ($pair in $json.PSObject.Properties) {" ^
-    "    $filePath = Split-Path -Leaf $pair.Name -Resolve;" ^
+    "    $filePath = $pair.Name;" ^
     "    $fileName = [System.IO.Path]::GetFileNameWithoutExtension($filePath) + '.md';" ^
     "    $content = $pair.Value;" ^
-    "    $imageMatches = [regex]::Matches($content, '!\\[.*?\\]\\(data:image\/png;base64,(.*?)\\)');" ^
+    "    $imageMatches = [regex]::Matches($content, '!\\[.*?\\]\\(data:image/png;base64,([^)]*)\\)');" ^
     "    $index = 1;" ^
     "    foreach ($match in $imageMatches) {" ^
     "        $base64String = $match.Groups[1].Value;" ^
     "        $imageFileName = [System.IO.Path]::GetFileNameWithoutExtension($fileName) + '_img' + $index + '.png';" ^
     "        $imagePath = Join-Path '%IMAGE_DIR%' $imageFileName;" ^
     "        [System.IO.File]::WriteAllBytes($imagePath, [Convert]::FromBase64String($base64String));" ^
-    "        $content = $content -replace [regex]::Escape($match.Value), '![$imageFileName](images/' + $imageFileName + ')';" ^
+    "        $content = $content -replace [regex]::Escape($match.Value), '![' + $imageFileName + '](images/' + $imageFileName + ')';" ^
     "        $index++;" ^
     "    }" ^
     "    $outputPath = Join-Path '%OUTPUT_DIR%' $fileName;" ^
