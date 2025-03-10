@@ -104,6 +104,7 @@ jobs:
           git add batch_files\chunks.json
           git add batch_files\output.json
           git add docs\*.md
+          git add docs\images\*.png
           git diff --staged --quiet || git commit -m "Auto-generate documentation files [skip ci]"
           git push
         shell: cmd
