@@ -42,7 +42,7 @@ jobs:
         run: dir /s /b
         shell: cmd
 
-      - name: manual curl
+      - name: Manual Curl Test
         run: curl -k -G "https://devdocs-vftt.onrender.com/parseJavaCodeToJSON" ^
           --data-urlencode "owner=Ryuzaki5100" ^
           --data-urlencode "repo=devdocs" ^
@@ -83,3 +83,20 @@ jobs:
       - name: Print output.json
         run: type batch_files\output.json
         shell: cmd
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+        shell: cmd
+
+      - name: Commit and Push Generated Files
+        run: |
+          git add batch_files\java_files.txt
+          git add batch_files\chunks.json
+          git add batch_files\output.json
+          git diff --staged --quiet || git commit -m "Auto-generate java_files.txt, chunks.json, and output.json [skip ci]"
+          git push
+        shell: cmd
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
