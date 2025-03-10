@@ -84,6 +84,10 @@ jobs:
         run: type batch_files\output.json
         shell: cmd
 
+      - name: Generate Markdown Files from output.json
+        run: batch_files\generateMarkdown.bat
+        shell: cmd
+
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
@@ -95,7 +99,8 @@ jobs:
           git add batch_files\java_files.txt
           git add batch_files\chunks.json
           git add batch_files\output.json
-          git diff --staged --quiet || git commit -m "Auto-generate java_files.txt, chunks.json, and output.json [skip ci]"
+          git add docs\*.md
+          git diff --staged --quiet || git commit -m "Auto-generate documentation files [skip ci]"
           git push
         shell: cmd
         env:
