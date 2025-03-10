@@ -84,6 +84,10 @@ jobs:
         run: type batch_files\output.json
         shell: cmd
 
+      - name: Ensure docs directory exists
+        run: mkdir docs 2>nul
+        shell: cmd
+
       - name: Generate Markdown Files from output.json
         run: batch_files\generateMarkdown.bat
         shell: cmd
