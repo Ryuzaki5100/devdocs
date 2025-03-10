@@ -23,7 +23,8 @@ public class GitHubRepoContents {
     private static final String TOKEN = System.getenv("PERSONAL_ACCESS_TOKEN");
 
     private static final int RATE_LIMIT_DELAY = 1000; // Delay in milliseconds to avoid rate limiting
-
+    
+    private List<String> files;
     private static Map<String, Long> rateLimitHeaders = new HashMap<>();
 
     public static void main(String[] args) {
@@ -43,7 +44,7 @@ public class GitHubRepoContents {
         }
     }
 
-    public static void listFileStructure(String owner, String repo, String branch, String path) throws Exception {
+    public static List<String> listFileStructure(String owner, String repo, String branch, String path) throws Exception {
         String urlString = String.format("https://api.github.com/repos/%s/%s/contents/%s?ref=%s", owner, repo, path, branch);
         URL url = new URL(urlString);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -69,6 +70,7 @@ public class GitHubRepoContents {
                 JSONObject item = contents.getJSONObject(i);
                 if (item.getString("type").equals("file")) {
                     System.out.println("File: " + item.getString("path"));
+                    files.add(item.getString("path"));
                 } else if (item.getString("type").equals("dir")) {
                     System.out.println("Directory: " + item.getString("path"));
                     listFileStructure(owner, repo, branch, item.getString("path"));
@@ -77,6 +79,7 @@ public class GitHubRepoContents {
         } else {
             handleErrorResponse(connection);
         }
+        return files;
     }
 
     public static String getFileContents(String owner, String repo, String branch, String path) throws Exception {
