@@ -42,6 +42,15 @@ jobs:
         run: dir /s /b
         shell: cmd
 
+      - name: manual curl
+        run: curl -k -G "https://devdocs-vftt.onrender.com/parseJavaCodeToJSON" ^
+          --data-urlencode "owner=Ryuzaki5100" ^
+          --data-urlencode "repo=devdocs" ^
+          --data-urlencode "branch=master" ^
+          --data-urlencode "filePath=demo/src/main/java/com/devdocs/demo/DemoApplication.java" ^
+          --verbose
+        shell: cmd
+
       - name: Generate java_files.txt
         run: batch_files\generateFileStructure.bat
         shell: cmd
