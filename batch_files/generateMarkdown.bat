@@ -3,7 +3,7 @@ setlocal EnableDelayedExpansion
 
 REM Define paths
 set "BATCH_DIR=%~dp0"
-set "INPUT_FILE=%BATCH_DIR%batch_files\output.json"
+set "INPUT_FILE=%BATCH_DIR%output.json"
 set "OUTPUT_DIR=%BATCH_DIR%..\docs"
 set "TEMP_FILE=%BATCH_DIR%temp_response.json"
 
