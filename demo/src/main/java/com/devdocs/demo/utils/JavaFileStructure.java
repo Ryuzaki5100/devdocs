@@ -81,4 +81,5 @@ public class JavaFileStructure {
         }
         return sb.toString();
     }
+
 }

@@ -13,9 +13,9 @@ public class JavaParserController {
     public JavaFileStructure parseJavaCodeToJSON(@RequestParam String owner, @RequestParam String repo, @RequestParam String branch, @RequestParam String filePath) throws Exception {
 //        int x = (int) filePath.charAt(filePath.length() - 1);
 //        System.out.println(x);
-//        System.out.println(filePath.length());
+        System.out.println(filePath.length());
         filePath = filePath.trim();
-//        System.out.println(filePath.length());
+        System.out.println(filePath.length());
         String fileContent = GitHubRepoContents.getFileContents(owner, repo, branch, filePath);
         return SimpleJavaParser.parseJavaCode(fileContent);
 //        return null;
