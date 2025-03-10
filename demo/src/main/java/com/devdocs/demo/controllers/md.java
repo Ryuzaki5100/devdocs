@@ -1,6 +1,7 @@
 package com.devdocs.demo.controllers;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -9,8 +10,8 @@ import java.util.Map;
 
 @RestController
 public class md {
-    @GetMapping("/getMd")
-    public HashMap<String, String> getMd(@RequestBody HashMap<String, Object> requestBody) {
+    @PostMapping("/postChunks")
+    public HashMap<String, String> postChunks(@RequestBody HashMap<String, Object> requestBody) {
         String temp = "# Generated Documentation with UML\n" +
                 "## LLM Output\n" +
                 "# Function Documentation\n" +

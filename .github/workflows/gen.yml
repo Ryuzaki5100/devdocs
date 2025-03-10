@@ -73,9 +73,10 @@ jobs:
 
       - name: Fetch Output JSON from API
         run: |
-          curl -k -G "https://devdocs-vftt.onrender.com/getMd" ^
-            --data-urlencode "@batch_files/chunks.json" ^
-            --output "batch_files/output.json" ^
+          curl -X POST "https://devdocs-vftt.onrender.com/postChunks" ^
+            -H "Content-Type: application/json" ^
+            --data "@batch_files\chunks.json" ^
+            --output "batch_files\output.json" ^
             --verbose
         shell: cmd
 
