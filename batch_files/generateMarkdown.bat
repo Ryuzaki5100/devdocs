@@ -1,33 +1,36 @@
 @echo off
-setlocal enabledelayedexpansion
+setlocal EnableDelayedExpansion
 
-:: Define paths
-set "INPUT_FILE=batch_files\output.json"
-set "OUTPUT_DIR=docs"
+REM Define paths
+set "BATCH_DIR=%~dp0"
+set "INPUT_FILE=%BATCH_DIR%batch_files\output.json"
+set "OUTPUT_DIR=%BATCH_DIR%..\docs"
+set "TEMP_FILE=%BATCH_DIR%temp_response.json"
 
-:: Ensure the output directory exists
+REM Ensure the docs directory exists
 if not exist "%OUTPUT_DIR%" mkdir "%OUTPUT_DIR%"
 
-:: Read JSON file and parse key-value pairs
-for /f "usebackq delims=" %%A in (%INPUT_FILE%) do (
-    set "line=%%A"
+REM Check if JSON file exists
+if not exist "%INPUT_FILE%" (
+    echo Error: JSON file not found at %INPUT_FILE%
+    exit /b 1
+)
 
-    :: Extract key (file path) and value (markdown content)
-    for /f "tokens=1,2 delims=:" %%B in ("!line!") do (
-        set "file_path=%%B"
-        set "md_content=%%C"
+REM Read JSON and parse key-value pairs using PowerShell
+powershell -Command ^
+    "$json = Get-Content -Raw '%INPUT_FILE%' | ConvertFrom-Json;" ^
+    "foreach ($pair in $json.PSObject.Properties) {" ^
+    "    $filePath = Split-Path -Leaf $pair.Name;" ^
+    "    $content = $pair.Value;" ^
+    "    $outputPath = '%OUTPUT_DIR%' + '\' + $filePath;" ^
+    "    $content | Set-Content -Path $outputPath -Encoding UTF8;" ^
+    "}"
 
-        :: Remove quotes and trim spaces
-        set "file_path=!file_path:~1,-1!"
-        set "md_content=!md_content:~2,-2!"
-
-        :: Extract file name
-        for %%F in (!file_path!) do set "file_name=%%~nxF"
-
-        :: Write content to markdown file
-        echo !md_content! > "%OUTPUT_DIR%\!file_name!.md"
-    )
+REM Verify files were created
+if %ERRORLEVEL% neq 0 (
+    echo Error: Failed to parse JSON or create markdown files.
+    exit /b 1
 )
 
 echo Markdown files created in %OUTPUT_DIR%
-endlocal
+exit /b 0
