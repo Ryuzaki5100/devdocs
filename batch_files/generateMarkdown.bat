@@ -7,7 +7,7 @@ set "INPUT_FILE=%BATCH_DIR%output.json"
 set "OUTPUT_DIR=%BATCH_DIR%..\docs"
 set "IMAGE_DIR=%OUTPUT_DIR%\images"
 
-REM Ensure the docs and image directories exist
+REM Ensure the docs and images directories exist
 if not exist "%OUTPUT_DIR%" mkdir "%OUTPUT_DIR%"
 if not exist "%IMAGE_DIR%" mkdir "%IMAGE_DIR%"
 
@@ -17,31 +17,31 @@ if not exist "%INPUT_FILE%" (
     exit /b 1
 )
 
-REM Read JSON and parse key-value pairs using PowerShell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "& {
+REM Read JSON and create markdown files
+powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+"& {
     $json = Get-Content -Raw '%INPUT_FILE%' | ConvertFrom-Json;
-
     foreach ($pair in $json.PSObject.Properties) {
         $filePath = $pair.Name;
         $fileName = [System.IO.Path]::GetFileNameWithoutExtension($filePath) + '.md';
         $outputPath = Join-Path '%OUTPUT_DIR%' $fileName;
         $content = $pair.Value;
 
-        # Extract base64 images and replace them with file paths
-        $imageMatches = [regex]::Matches($content, '!\\[.*?\\]\\(data:image/png;base64,([^)]*)\\)');
+        # Extract base64 images and save them as PNG files
+        $imageRegex = '(?<=!\[.*?\]\(data:image/png;base64,)([^)]+)(?=\))';
         $index = 1;
 
-        foreach ($match in $imageMatches) {
+        foreach ($match in [regex]::Matches($content, $imageRegex)) {
             $base64String = $match.Groups[1].Value;
             $imageFileName = [System.IO.Path]::GetFileNameWithoutExtension($fileName) + '_img' + $index + '.png';
             $imagePath = Join-Path '%IMAGE_DIR%' $imageFileName;
             [System.IO.File]::WriteAllBytes($imagePath, [Convert]::FromBase64String($base64String));
 
-            $content = $content -replace [regex]::Escape($match.Value), '![' + $imageFileName + '](images/' + $imageFileName + ')';
+            $content = $content -replace ('!\[.*?\]\(data:image/png;base64,' + [regex]::Escape($base64String) + '\)'), '![' + $imageFileName + '](images/' + $imageFileName + ')';
             $index++;
         }
 
-        # Write markdown file
+        # Write the processed markdown file
         $content | Set-Content -Path $outputPath -Encoding UTF8;
     }
 }"
