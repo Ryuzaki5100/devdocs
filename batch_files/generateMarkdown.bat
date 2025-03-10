@@ -5,7 +5,6 @@ REM Define paths
 set "BATCH_DIR=%~dp0"
 set "INPUT_FILE=%BATCH_DIR%output.json"
 set "OUTPUT_DIR=%BATCH_DIR%..\docs"
-set "TEMP_FILE=%BATCH_DIR%temp_response.json"
 
 REM Ensure the docs directory exists
 if not exist "%OUTPUT_DIR%" mkdir "%OUTPUT_DIR%"
@@ -20,9 +19,10 @@ REM Read JSON and parse key-value pairs using PowerShell
 powershell -Command ^
     "$json = Get-Content -Raw '%INPUT_FILE%' | ConvertFrom-Json;" ^
     "foreach ($pair in $json.PSObject.Properties) {" ^
-    "    $filePath = Split-Path -Leaf $pair.Name;" ^
+    "    $filePath = Split-Path -Leaf $pair.Name -Resolve;" ^
+    "    $fileName = [System.IO.Path]::GetFileNameWithoutExtension($filePath) + '.md';" ^
     "    $content = $pair.Value;" ^
-    "    $outputPath = '%OUTPUT_DIR%' + '\' + $filePath;" ^
+    "    $outputPath = Join-Path '%OUTPUT_DIR%' $fileName;" ^
     "    $content | Set-Content -Path $outputPath -Encoding UTF8;" ^
     "}"
 
