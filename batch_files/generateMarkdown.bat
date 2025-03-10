@@ -5,9 +5,11 @@ REM Define paths
 set "BATCH_DIR=%~dp0"
 set "INPUT_FILE=%BATCH_DIR%output.json"
 set "OUTPUT_DIR=%BATCH_DIR%..\docs"
+set "IMAGE_DIR=%OUTPUT_DIR%\images"
 
-REM Ensure the docs directory exists
+REM Ensure the docs and image directories exist
 if not exist "%OUTPUT_DIR%" mkdir "%OUTPUT_DIR%"
+if not exist "%IMAGE_DIR%" mkdir "%IMAGE_DIR%"
 
 REM Check if JSON file exists
 if not exist "%INPUT_FILE%" (
@@ -22,6 +24,16 @@ powershell -Command ^
     "    $filePath = Split-Path -Leaf $pair.Name -Resolve;" ^
     "    $fileName = [System.IO.Path]::GetFileNameWithoutExtension($filePath) + '.md';" ^
     "    $content = $pair.Value;" ^
+    "    $imageMatches = [regex]::Matches($content, '!\\[.*?\\]\\(data:image\/png;base64,(.*?)\\)');" ^
+    "    $index = 1;" ^
+    "    foreach ($match in $imageMatches) {" ^
+    "        $base64String = $match.Groups[1].Value;" ^
+    "        $imageFileName = [System.IO.Path]::GetFileNameWithoutExtension($fileName) + '_img' + $index + '.png';" ^
+    "        $imagePath = Join-Path '%IMAGE_DIR%' $imageFileName;" ^
+    "        [System.IO.File]::WriteAllBytes($imagePath, [Convert]::FromBase64String($base64String));" ^
+    "        $content = $content -replace [regex]::Escape($match.Value), '![$imageFileName](images/' + $imageFileName + ')';" ^
+    "        $index++;" ^
+    "    }" ^
     "    $outputPath = Join-Path '%OUTPUT_DIR%' $fileName;" ^
     "    $content | Set-Content -Path $outputPath -Encoding UTF8;" ^
     "}"
@@ -33,4 +45,5 @@ if %ERRORLEVEL% neq 0 (
 )
 
 echo Markdown files created in %OUTPUT_DIR%
+echo Extracted images saved in %IMAGE_DIR%
 exit /b 0
