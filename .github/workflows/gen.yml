@@ -94,6 +94,10 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
         shell: cmd
 
+      - name: List files in docs directory
+        run: dir docs /s /b
+        shell: cmd
+
       - name: Commit and Push Generated Files
         run: |
           git add batch_files\java_files.txt
