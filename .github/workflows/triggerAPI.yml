@@ -1,0 +1,33 @@
+name: Trigger API on Merge to Dev
+
+on:
+  pull_request:
+    branches:
+      - dev
+    types:
+      - closed  # Runs only when PR is closed
+
+jobs:
+  trigger-api:
+    if: github.event.pull_request.merged == true  # Runs only if PR is merged
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Get Changed Files from Merged PR
+        id: changed-files
+        run: |
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.merge_commit_sha }} | jq -R -s -c 'split("\n")[:-1]')
+          echo "changed_files=$CHANGED_FILES" >> $GITHUB_ENV
+
+      - name: Call API with Changed Files
+        env:
+          API_URL: "https://your-api-endpoint.com/process-files"
+          API_KEY: ${{ secrets.API_KEY }} # Secure API key from GitHub Secrets
+        run: |
+          curl -X POST "$API_URL" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $API_KEY" \
+            -d '{"changed_files": ${{ env.changed_files }}}'
