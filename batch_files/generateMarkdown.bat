@@ -18,33 +18,7 @@ if not exist "%INPUT_FILE%" (
 )
 
 REM Read JSON and create markdown files
-powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-"& {
-    $json = Get-Content -Raw '%INPUT_FILE%' | ConvertFrom-Json;
-    foreach ($pair in $json.PSObject.Properties) {
-        $filePath = $pair.Name;
-        $fileName = [System.IO.Path]::GetFileNameWithoutExtension($filePath) + '.md';
-        $outputPath = Join-Path '%OUTPUT_DIR%' $fileName;
-        $content = $pair.Value;
-
-        # Extract base64 images and save them as PNG files
-        $imageRegex = '(?<=!\[.*?\]\(data:image/png;base64,)([^)]+)(?=\))';
-        $index = 1;
-
-        foreach ($match in [regex]::Matches($content, $imageRegex)) {
-            $base64String = $match.Groups[1].Value;
-            $imageFileName = [System.IO.Path]::GetFileNameWithoutExtension($fileName) + '_img' + $index + '.png';
-            $imagePath = Join-Path '%IMAGE_DIR%' $imageFileName;
-            [System.IO.File]::WriteAllBytes($imagePath, [Convert]::FromBase64String($base64String));
-
-            $content = $content -replace ('!\[.*?\]\(data:image/png;base64,' + [regex]::Escape($base64String) + '\)'), '![' + $imageFileName + '](images/' + $imageFileName + ')';
-            $index++;
-        }
-
-        # Write the processed markdown file
-        $content | Set-Content -Path $outputPath -Encoding UTF8;
-    }
-}"
+powershell -NoProfile -ExecutionPolicy Bypass -File "%BATCH_DIR%process_json.ps1" "%INPUT_FILE%" "%OUTPUT_DIR%" "%IMAGE_DIR%"
 
 REM Check for errors
 if %ERRORLEVEL% neq 0 (
