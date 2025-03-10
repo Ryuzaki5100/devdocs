@@ -15,16 +15,30 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Get current and previous commit for diff
+
+      - name: Check if first-time trigger
+        id: check-trigger
+        run: |
+          git diff --name-only HEAD^ HEAD > changed_files.txt
+          findstr /i "batch_files/generateFileStructure.bat batch_files/generateChunks.bat" changed_files.txt > nul
+          if %errorlevel% equ 0 (
+            echo "First-time trigger detected"
+            echo "is_first_time=true" >> %GITHUB_OUTPUT%
+          ) else (
+            echo "Subsequent trigger detected"
+            echo "is_first_time=false" >> %GITHUB_OUTPUT%
+          )
+        shell: cmd
 
       - name: Install curl
         run: |
           set CURL_DIR=%GITHUB_WORKSPACE%\curl-install
           if not exist "%CURL_DIR%" mkdir "%CURL_DIR%"
           cd "%CURL_DIR%"
-
           powershell -Command "Invoke-WebRequest -Uri 'https://curl.se/windows/dl-8.4.0_7/curl-8.4.0_7-win64-mingw.zip' -OutFile 'curl.zip'"
           powershell -Command "Expand-Archive -Path 'curl.zip' -DestinationPath ."
-
           for /d %%D in (curl-*-win64-mingw) do set CURL_FOLDER=%%D
           if exist "%CURL_FOLDER%\bin\curl.exe" (
             copy "%CURL_FOLDER%\bin\curl.exe" "%GITHUB_WORKSPACE%"
@@ -32,7 +46,6 @@ jobs:
             echo "Error: curl.exe not found in extracted folder" >&2
             exit /b 1
           )
-
           cd "%GITHUB_WORKSPACE%"
           rmdir /s /q "%CURL_DIR%"
           echo "%GITHUB_WORKSPACE%" >> "%GITHUB_PATH%"
@@ -42,21 +55,23 @@ jobs:
         run: dir /s /b
         shell: cmd
 
-      - name: Generate java_files.txt
+      - name: Generate java_files.txt (first-time only)
+        if: steps.check-trigger.outputs.is_first_time == 'true'
         run: batch_files\generateFileStructure.bat
         shell: cmd
 
-      - name: print Stuff
-        run: type batch_files\java_files.txt
+      - name: Get changed Java files (subsequent triggers)
+        if: steps.check-trigger.outputs.is_first_time == 'false'
+        run: |
+          git diff --name-only HEAD^ HEAD | findstr "\.java$" > batch_files\java_files.txt
+          if %errorlevel% neq 0 (
+            echo "No Java files changed in this commit"
+            echo [] > batch_files\chunks.json
+          )
         shell: cmd
 
-      - name: manual curl
-        run: curl -k -G "https://devdocs-vftt.onrender.com/parseJavaCodeToJSON" ^
-          --data-urlencode "owner=Ryuzaki5100" ^
-          --data-urlencode "repo=devdocs" ^
-          --data-urlencode "branch=master" ^
-          --data-urlencode "filePath=demo/src/main/java/com/devdocs/demo/DemoApplication.java" ^
-          --verbose
+      - name: Print java_files.txt
+        run: type batch_files\java_files.txt
         shell: cmd
 
       - name: Process java_files.txt and Generate JSON
@@ -67,7 +82,7 @@ jobs:
           GH_REPO: devdocs
           GH_BRANCH: ${{ github.ref_name }}
 
-      - name: print Stuff again
+      - name: Print chunks.json
         run: type batch_files\chunks.json
         shell: cmd
 
