@@ -5,6 +5,7 @@ com\devdocs\demo\utils\SimpleJavaParser$JavaFileStructure$JavaMethodStructure.cl
 com\devdocs\demo\utils\JavaFileStructure.class
 com\devdocs\demo\utils\SimpleJavaParser$JavaFileStructure$JavaFieldStructure.class
 com\devdocs\demo\utils\SimpleJavaParser$JavaFileStructure$JavaClassStructure.class
+com\devdocs\demo\controllers\TempString.class
 com\devdocs\demo\utils\SimpleJavaParser.class
 com\devdocs\demo\utils\GitHubRepoContents.class
 com\devdocs\demo\utils\SimpleJavaParser$JavaFileStructure.class
