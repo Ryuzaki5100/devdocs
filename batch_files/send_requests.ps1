@@ -14,15 +14,20 @@ foreach ($pair in $chunks.PSObject.Properties) {
     $value = $pair.Value
 
     # Create a JSON object containing only the current key-value pair
-    $jsonBody = @{ $key = $value } | ConvertTo-Json -Depth 10
+    $jsonBody = ConvertTo-Json -Depth 10 -InputObject @{ $key = $value }
 
     # Send API request
     try {
         $response = Invoke-RestMethod -Uri $apiUrl -Method Post -Body $jsonBody -ContentType "application/json"
-        $response | Out-File -Append -Encoding utf8 "batch_files\output.json"
+
+        # Print the response to check if it's null
+        Write-Host "Response for $key:`n$response"
+
+        # Append response to output.json
+        Add-Content -Path "batch_files\output.json" -Value ($response | ConvertTo-Json -Depth 10)
     }
     catch {
-        Write-Host "Failed to process $key"
+        Write-Host "Failed to process $key. Error: $_"
     }
 
     # Update progress
