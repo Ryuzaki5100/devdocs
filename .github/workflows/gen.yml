@@ -60,7 +60,7 @@ jobs:
         shell: cmd
         env:
           GH_OWNER: ${{ github.repository_owner }}
-          GH_REPO: rbxcb
+          GH_REPO: devdocs
           GH_BRANCH: ${{ github.ref_name }}
 
       - name: Print chunks.json
