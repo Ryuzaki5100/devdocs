@@ -25,33 +25,30 @@ try {
     $existingData = @()
 }
 
-# Iterate through each key-value pair and send an API request
+# Create a JSON object containing all key-value pairs in the expected format
+$formattedData = @{}
 foreach ($pair in $chunks.PSObject.Properties) {
-    $key = $pair.Name
-    $value = $pair.Value
-
-    # Create a JSON object containing only the current key-value pair
-    $jsonBody = @{ "$key" = $value } | ConvertTo-Json -Depth 10
-
-    # Send API request
-    try {
-        $response = Invoke-RestMethod -Uri $apiUrl -Method Post -Body $jsonBody -ContentType "application/json"
-
-        # Print the response to check if it's null
-        Write-Host "Response for ${key}:`n$response"
-
-        # Append the new response
-        $newEntry = @{ "key" = $key; "response" = $response }
-        $existingData += $newEntry
-
-        # Save the updated JSON back to output.json
-        $existingData | ConvertTo-Json -Depth 10 | Set-Content -Path $outputFilePath
-    }
-    catch {
-        Write-Host "Failed to process $key. Error: $_"
-    }
-
-    # Update progress
-    $processedRequests++
-    Write-Host "Processed $processedRequests / $totalRequests requests."
+    $formattedData["$($pair.Name)"] = $pair.Value
 }
+
+$jsonBody = $formattedData | ConvertTo-Json -Depth 10
+
+# Send API request
+try {
+    $response = Invoke-RestMethod -Uri $apiUrl -Method Post -Body $jsonBody -ContentType "application/json"
+
+    # Print the response to check if it's null
+    Write-Host "Response:`n$response"
+
+    # Append the new response
+    $newEntry = @{ "request" = $formattedData; "response" = $response }
+    $existingData += $newEntry
+
+    # Save the updated JSON back to output.json
+    $existingData | ConvertTo-Json -Depth 10 | Set-Content -Path $outputFilePath
+} catch {
+    Write-Host "Failed to process request. Error: $_"
+}
+
+# Update progress
+Write-Host "Processed 1 / 1 request."
