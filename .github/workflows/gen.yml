@@ -73,7 +73,7 @@ jobs:
 
       - name: Fetch Output JSON from API
         run: |
-          curl -k -X POST "https://devdocs-vftt.onrender.com/postChunks" ^
+          curl -k -X POST "https://2bf9-2401-4900-65a7-e0c8-1428-e71c-3cf-3631.ngrok-free.app/postChunks" ^
             -H "Content-Type: application/json" ^
             --data "@batch_files\chunks.json" ^
             --output "batch_files\output.json" ^
