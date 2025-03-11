@@ -8,8 +8,22 @@ $apiUrl = "https://2bf9-2401-4900-65a7-e0c8-1428-e71c-3cf-3631.ngrok-free.app/po
 $totalRequests = $chunks.PSObject.Properties.Count
 $processedRequests = 0
 
-# Ensure output.json starts as an empty array
-"[]" | Set-Content -Path "batch_files\output.json"
+# Ensure output.json exists and is an array
+$outputFilePath = "batch_files\output.json"
+if (-Not (Test-Path $outputFilePath)) {
+    "[]" | Set-Content -Path $outputFilePath
+}
+
+# Load existing output.json data
+try {
+    $existingData = Get-Content -Raw -Path $outputFilePath | ConvertFrom-Json
+    if ($existingData -isnot [System.Array]) {
+        $existingData = @()
+    }
+} catch {
+    Write-Host "Error reading output.json. Resetting it to an empty array."
+    $existingData = @()
+}
 
 # Iterate through each key-value pair and send an API request
 foreach ($pair in $chunks.PSObject.Properties) {
@@ -26,20 +40,12 @@ foreach ($pair in $chunks.PSObject.Properties) {
         # Print the response to check if it's null
         Write-Host "Response for ${key}:`n$response"
 
-        # Load existing output.json data
-        $existingData = Get-Content -Raw -Path "batch_files\output.json" | ConvertFrom-Json
-
-        # Ensure it's an array
-        if ($existingData -isnot [System.Array]) {
-            $existingData = @()
-        }
-
         # Append the new response
         $newEntry = @{ "key" = $key; "response" = $response }
-        $updatedData = $existingData + $newEntry
+        $existingData += $newEntry
 
         # Save the updated JSON back to output.json
-        $updatedData | ConvertTo-Json -Depth 10 | Set-Content -Path "batch_files\output.json"
+        $existingData | ConvertTo-Json -Depth 10 | Set-Content -Path $outputFilePath
     }
     catch {
         Write-Host "Failed to process $key. Error: $_"
