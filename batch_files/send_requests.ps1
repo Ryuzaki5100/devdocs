@@ -1,5 +1,5 @@
 # Load the JSON file containing key-value pairs
-$chunks = Get-Content -Raw -Path "chunks.json" | ConvertFrom-Json
+$chunks = Get-Content -Raw -Path "batch_files\chunks.json" | ConvertFrom-Json
 
 # API endpoint
 $apiUrl = "https://2bf9-2401-4900-65a7-e0c8-1428-e71c-3cf-3631.ngrok-free.app/postChunks"
@@ -19,7 +19,7 @@ foreach ($pair in $chunks.PSObject.Properties) {
     # Send API request
     try {
         $response = Invoke-RestMethod -Uri $apiUrl -Method Post -Body $jsonBody -ContentType "application/json"
-        $response | Out-File -Append -Encoding utf8 "output.json"
+        $response | Out-File -Append -Encoding utf8 "batch_files\output.json"
     }
     catch {
         Write-Host "Failed to process $key"
