@@ -1,217 +1,56 @@
 ﻿# Generated Documentation with UML
-## LLM Output
 # Function Documentation
- 
-This documentation provides detailed explanations for each function listed, maintaining the order of execution based on their dependencies. Each function contributes to manipulating or obtaining properties related to a `Cube` object.
- 
-## 1. Function `func1`
- 
+
+This documentation provides detailed explanations for the `JavaFileStructure.toString()` function. It describes how the function operates, its logic and structure, and its role in the overall system.
+
+## Function: `JavaFileStructure.toString()`
+
 ### Description
-This function is responsible for creating a new instance of the `Cube` class. It clones the properties of `edge` and `corner` from the current instance to ensure that modifications to the new cube do not affect the original cube.
- 
-### Body
-```java
-return new Cube(this.getEdge().clone(), this.getCorner().clone());
-```
- 
+The `toString` method of the `JavaFileStructure` class is designed to provide a comprehensive string representation of a Java file's structure. This representation includes all associated imports, classes, methods, fields, and their respective annotations. It formats this information in a plaintext format, making it easy to read and understand the hierarchy and components of the Java file.
+
 ### Dependencies
-- `getEdge()`: Must return the current edge state of the cube.
-- `getCorner()`: Must return the current corner state of the cube.
- 
----
- 
-## 2. Function `func2`
- 
-### Description
-This function takes a `Cube` object `c` and a string `s` of moves to apply transformations to the cube's configuration. It handles move notations, updates the edge and corner positions and orientations according to predefined transformation maps.
- 
-### Body
-```java
-Cube temp = c.clone();
-String[] moves = s.split(" ");
-if (moves.length > 1) {
-    // Builds the string representation of moves.
-    StringBuilder sBuilder = new StringBuilder();
-    for (String string : moves) {
-        // Handle different move lengths.
-        if (string.length() == 1)
-            sBuilder.append(string.charAt(0));
-        else if (string.charAt(1) == '2')
-            sBuilder.append(String.valueOf(string.charAt(0)).repeat(2));
-        else
-            sBuilder.append(String.valueOf(string.charAt(0)).repeat(3));
-    }
-    s = sBuilder.toString();
-}
-```
-- This part processes the move notation for subsequent applications.
- 
-```java
-for (int i = 0; i < s.length(); i++) {
-    char ch = s.charAt(i);
-    EdgePos edgePos = temp.getEdge().getEdgePos().clone();
-    EdgeOrientation edgeOrientation = temp.getEdge().getEdgeOrientation().clone();
-    // Update edge position and orientation.
-    for (int j = 0; j < 12; j++) {
-        edgeOrientation.setVal(j, nextEdgeOrientation.get(ch).get(edgePos.getVal()[j]).get(edgeOrientation.getVal()[j]));
-        edgePos.setVal(j, nextEdgePos.get(ch).getVal()[edgePos.getVal()[j]]);
-    }
-    temp.setEdge(new Edge(edgePos, edgeOrientation));
-    CornerPos cornerPos = temp.getCorner().getCornerPos().clone();
-    CornerOrientation cornerOrientation = temp.getCorner().getCornerOrientation().clone();
-    // Update corner position and orientation.
-    for (int j = 0; j < 8; j++) {
-        cornerOrientation.setVal(j, nextCornerOrientation.get(ch).get(cornerPos.getVal()[j]).get(cornerOrientation.getVal()[j]));
-        cornerPos.setVal(j, nextCornerPos.get(ch).getVal()[cornerPos.getVal()[j]]);
-    }
-    temp.setCorner(new Corner(cornerPos, cornerOrientation));
-}
-return temp;
-```
-- Each character in the move string applies corresponding rotations to both edges and corners.
- 
-### Dependencies
-- `getEdge()`, `getCorner()`, `setEdge()`, and `setCorner()` must be defined in the `Cube` class.
-- The transformation maps: `nextEdgeOrientation`, `nextEdgePos`, `nextCornerOrientation`, and `nextCornerPos` must be pre-defined structures for valid operations on the cube.
- 
----
- 
-## 3. Function `func3`
- 
-### Description
-This function takes a string `s`, repeats each character three times, and then returns the reversed result as a string. It utilizes `StringBuilder` for efficient string manipulation.
- 
-### Body
-```java
-StringBuilder result = new StringBuilder();
-for (int i = 0; i < s.length(); i++)
-    result.append(String.valueOf(s.charAt(i)).repeat(3));
-return new StringBuilder(result.toString()).reverse().toString();
-```
- 
-### Dependencies
-- `StringBuilder`: This class is used for constructing strings efficiently and requires no external dependencies.
- 
----
- 
-## 4. Function `func4`
- 
-### Description
-This function processes a series of move characters and compresses consecutive duplicates into a specific format (e.g., for moves such as `R` becomes `R`, `RR` becomes `R2`), while ignoring sequences of three or more duplicates.
- 
-### Body
-```java
-class Temp {
-    final char ch;  // character representing the move
-    final byte b;   // count of repetitions
- 
-    public Temp(char ch, byte b) {
-        this.ch = ch;
-        this.b = b;
-    }
-}
-Stack<Temp> s = new Stack<>();
-ArrayList<String> v = new ArrayList<>(Arrays.asList("", "", "2", "'"));
-ArrayList<String> result = new ArrayList<>();
-for (int i = 0; i < moves.length(); i++) {
-    // Logic to manage moves
-    if (s.isEmpty() || s.peek().ch != moves.charAt(i))
-        s.push(new Temp(moves.charAt(i), (byte) 1));
-    else {
-        Temp x = s.pop();
-        // Increment count if not already 3
-        if (x.b != (byte) 3)
-            s.push(new Temp(x.ch, (byte) (x.b + 1)));
-    }
-}
-while (!s.isEmpty()) {
-    Temp x = s.pop();
-    if (x.b != 0)
-        result.add(0, x.ch + v.get(x.b));
-}
-return result;
-```
- 
-### Dependencies
-- Utilizes `Stack` and `ArrayList` for the necessary data structures, with no external dependencies required.
- 
----
- 
-## 5. Function `func5`
- 
-### Description
-This function provides a string representation of the `Cube` object, including its edge and corner states. It formats the output in a structured string format.
- 
-### Body
-```java
-return "Cube{\n" + "edge=" + edge.toString() + ",\ncorner=" + corner.toString() + "\n}";
-```
- 
-### Dependencies
-- Requires both the `edge` and `corner` objects to have a valid `toString()` method defined, allowing for their string representation.
- 
----
- 
-## 6. Function `func6`
- 
-### Description
-This function returns the current state of the `edge` variable. Typically, this could refer to edges on a Rubik's cube or a similar structure.
- 
-### Body
-```java
-return edge;
-```
- 
-### Dependencies
-- The variable `edge` must be defined and initialized prior to the function's call.
- 
----
- 
-## 7. Function `func7`
- 
-### Description
-This function sets the `edge` property of the current object. It allows for updates to the edges of the `Cube`.
- 
-### Body
-```java
-this.edge = edge;
-```
- 
-### Dependencies
-- The `edge` parameter must be provided when calling this function, typically representing the new edge state.
- 
----
- 
-## 8. Function `func8`
- 
-### Description
-This function returns the current state of the `corner` variable. This typically pertains to corners of a structure like a Rubik's cube.
- 
-### Body
-```java
-return corner;
-```
- 
-### Dependencies
-- The variable `corner` must be defined and initialized prior to the function's call.
- 
----
- 
-## 9. Function `func9`
- 
-### Description
-This function sets the `corner` property of the current object. It allows for updates to the corners of the `Cube`.
- 
-### Body
-```java
-this.corner = corner;
-```
- 
-### Dependencies
-- The `corner` parameter must be provided when calling this function, typically representing the new corner state.
- 
----
- 
-This documentation encapsulates an overview of function purposes, flows, and dependencies necessary for a comprehensive understanding of how to manipulate cube objects. Each function contributes to managing the properties and behaviors associated with cube configurations, enabling essential operations in applications like a Rubik's Cube solver or simulator.
+- The `toString()` function relies on various data structures and types, such as `imports`, `JavaClassStructure`, `JavaFieldStructure`, and `JavaMethodStructure`. These components must be populated prior to invoking this method to ensure accurate representation.
+
+### Function Flow
+1. **Initialization**:
+   - A `StringBuilder` instance (`sb`) is created to construct the output string efficiently.
+
+2. **Adding Imports**:
+   - The method begins by appending "Imports:\n" to `sb`.
+   - It iterates over the `imports` collection, appending each import statement prefixed with two spaces to align with the structure’s format, ending each statement with a newline.
+
+3. **Processing Classes**:
+   - The method then iterates over the collection of `JavaClassStructure` objects stored in the `classes` field.
+   - For each class, it appends the class name prefixed with "Class:\n" and delays its processing until it has examined all relevant aspects.
+  
+4. **Adding Class Annotations**:
+   - If the class has any annotations, it appends them neatly titled under "Annotations:" followed by the actual annotations.
+
+5. **Adding Extended Classes**:
+   - If the class extends any other class, it appends this information with a similar prefix for clarity.
+
+6. **Adding Implemented Interfaces**:
+   - For any interfaces implemented by the class, it appends that information as well.
+
+7. **Adding Fields**:
+   - The method indicates a transition to the fields section by appending "Fields:\n".
+   - It iterates through each `JavaFieldStructure`, detailing the type and name of each field. If any field has annotations, it appends them in parentheses next to the field declaration.
+
+8. **Adding Methods**:
+   - The final section indicates the beginning of method definitions with "Methods:\n".
+   - For each `JavaMethodStructure`, it appends the return type, method name, and its parameter list in standard format. 
+   - If the method has annotations, these are appended below the method's signature under "Annotations:".
+   - Additionally, it includes the method's body text for further context on implementation.
+
+9. **Return the Result**:
+   - Finally, the constructed string from `StringBuilder` is returned, containing a complete representation of the Java file's structure.
+
+### Business Logic
+The primary rationale behind this function is to facilitate easy visualization and review of a Java file's structure. It allows developers and other stakeholders to understand complex Java files at a glance, including the relationships between classes, fields, methods, and their metadata (annotations). This could be particularly useful for code reviews, documentation generation, and debugging processes. The method adheres to a systematic format that ensures consistency and readability, which is fundamental when dealing with large codebases where clarity is paramount. 
+
+By generating a complete textual representation, this function also aids in meta-programming or tools that analyze or manipulate Java code, providing necessary insights into the code's architecture. 
+
+Overall, the `JavaFileStructure.toString()` function serves as an essential utility for documenting and understanding Java file structures systematically.
 ## UML Diagram
 ![Image](images/JavaFileStructure_img1.png)
+

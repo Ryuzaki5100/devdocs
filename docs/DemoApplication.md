@@ -1,217 +1,46 @@
 ﻿# Generated Documentation with UML
-## LLM Output
-# Function Documentation
- 
-This documentation provides detailed explanations for each function listed, maintaining the order of execution based on their dependencies. Each function contributes to manipulating or obtaining properties related to a `Cube` object.
- 
-## 1. Function `func1`
- 
-### Description
-This function is responsible for creating a new instance of the `Cube` class. It clones the properties of `edge` and `corner` from the current instance to ensure that modifications to the new cube do not affect the original cube.
- 
-### Body
+# Documentation for DemoApplication
+
+## Function Overview
+The application consists of a single main function that serves as the entry point for a Spring Boot application. This function is responsible for initiating the application context and starting the Spring Boot framework.
+
+### Function: `DemoApplication.main(String[] args)`
+
+#### Purpose
+The `main` function is the entry point of the Java application developed using the Spring Boot framework. It is where the application starts its execution.
+
+#### Parameters
+- `String[] args`: An array of `String` arguments that can be passed to the application from the command line. These arguments can be used to customize the behavior of the application at runtime, such as configuration settings.
+
+#### Body
 ```java
-return new Cube(this.getEdge().clone(), this.getCorner().clone());
-```
- 
-### Dependencies
-- `getEdge()`: Must return the current edge state of the cube.
-- `getCorner()`: Must return the current corner state of the cube.
- 
----
- 
-## 2. Function `func2`
- 
-### Description
-This function takes a `Cube` object `c` and a string `s` of moves to apply transformations to the cube's configuration. It handles move notations, updates the edge and corner positions and orientations according to predefined transformation maps.
- 
-### Body
-```java
-Cube temp = c.clone();
-String[] moves = s.split(" ");
-if (moves.length > 1) {
-    // Builds the string representation of moves.
-    StringBuilder sBuilder = new StringBuilder();
-    for (String string : moves) {
-        // Handle different move lengths.
-        if (string.length() == 1)
-            sBuilder.append(string.charAt(0));
-        else if (string.charAt(1) == '2')
-            sBuilder.append(String.valueOf(string.charAt(0)).repeat(2));
-        else
-            sBuilder.append(String.valueOf(string.charAt(0)).repeat(3));
-    }
-    s = sBuilder.toString();
+{
+    SpringApplication.run(DemoApplication.class, args);
 }
 ```
-- This part processes the move notation for subsequent applications.
- 
-```java
-for (int i = 0; i < s.length(); i++) {
-    char ch = s.charAt(i);
-    EdgePos edgePos = temp.getEdge().getEdgePos().clone();
-    EdgeOrientation edgeOrientation = temp.getEdge().getEdgeOrientation().clone();
-    // Update edge position and orientation.
-    for (int j = 0; j < 12; j++) {
-        edgeOrientation.setVal(j, nextEdgeOrientation.get(ch).get(edgePos.getVal()[j]).get(edgeOrientation.getVal()[j]));
-        edgePos.setVal(j, nextEdgePos.get(ch).getVal()[edgePos.getVal()[j]]);
-    }
-    temp.setEdge(new Edge(edgePos, edgeOrientation));
-    CornerPos cornerPos = temp.getCorner().getCornerPos().clone();
-    CornerOrientation cornerOrientation = temp.getCorner().getCornerOrientation().clone();
-    // Update corner position and orientation.
-    for (int j = 0; j < 8; j++) {
-        cornerOrientation.setVal(j, nextCornerOrientation.get(ch).get(cornerPos.getVal()[j]).get(cornerOrientation.getVal()[j]));
-        cornerPos.setVal(j, nextCornerPos.get(ch).getVal()[cornerPos.getVal()[j]]);
-    }
-    temp.setCorner(new Corner(cornerPos, cornerOrientation));
-}
-return temp;
-```
-- Each character in the move string applies corresponding rotations to both edges and corners.
- 
-### Dependencies
-- `getEdge()`, `getCorner()`, `setEdge()`, and `setCorner()` must be defined in the `Cube` class.
-- The transformation maps: `nextEdgeOrientation`, `nextEdgePos`, `nextCornerOrientation`, and `nextCornerPos` must be pre-defined structures for valid operations on the cube.
- 
----
- 
-## 3. Function `func3`
- 
-### Description
-This function takes a string `s`, repeats each character three times, and then returns the reversed result as a string. It utilizes `StringBuilder` for efficient string manipulation.
- 
-### Body
-```java
-StringBuilder result = new StringBuilder();
-for (int i = 0; i < s.length(); i++)
-    result.append(String.valueOf(s.charAt(i)).repeat(3));
-return new StringBuilder(result.toString()).reverse().toString();
-```
- 
-### Dependencies
-- `StringBuilder`: This class is used for constructing strings efficiently and requires no external dependencies.
- 
----
- 
-## 4. Function `func4`
- 
-### Description
-This function processes a series of move characters and compresses consecutive duplicates into a specific format (e.g., for moves such as `R` becomes `R`, `RR` becomes `R2`), while ignoring sequences of three or more duplicates.
- 
-### Body
-```java
-class Temp {
-    final char ch;  // character representing the move
-    final byte b;   // count of repetitions
- 
-    public Temp(char ch, byte b) {
-        this.ch = ch;
-        this.b = b;
-    }
-}
-Stack<Temp> s = new Stack<>();
-ArrayList<String> v = new ArrayList<>(Arrays.asList("", "", "2", "'"));
-ArrayList<String> result = new ArrayList<>();
-for (int i = 0; i < moves.length(); i++) {
-    // Logic to manage moves
-    if (s.isEmpty() || s.peek().ch != moves.charAt(i))
-        s.push(new Temp(moves.charAt(i), (byte) 1));
-    else {
-        Temp x = s.pop();
-        // Increment count if not already 3
-        if (x.b != (byte) 3)
-            s.push(new Temp(x.ch, (byte) (x.b + 1)));
-    }
-}
-while (!s.isEmpty()) {
-    Temp x = s.pop();
-    if (x.b != 0)
-        result.add(0, x.ch + v.get(x.b));
-}
-return result;
-```
- 
-### Dependencies
-- Utilizes `Stack` and `ArrayList` for the necessary data structures, with no external dependencies required.
- 
----
- 
-## 5. Function `func5`
- 
-### Description
-This function provides a string representation of the `Cube` object, including its edge and corner states. It formats the output in a structured string format.
- 
-### Body
-```java
-return "Cube{\n" + "edge=" + edge.toString() + ",\ncorner=" + corner.toString() + "\n}";
-```
- 
-### Dependencies
-- Requires both the `edge` and `corner` objects to have a valid `toString()` method defined, allowing for their string representation.
- 
----
- 
-## 6. Function `func6`
- 
-### Description
-This function returns the current state of the `edge` variable. Typically, this could refer to edges on a Rubik's cube or a similar structure.
- 
-### Body
-```java
-return edge;
-```
- 
-### Dependencies
-- The variable `edge` must be defined and initialized prior to the function's call.
- 
----
- 
-## 7. Function `func7`
- 
-### Description
-This function sets the `edge` property of the current object. It allows for updates to the edges of the `Cube`.
- 
-### Body
-```java
-this.edge = edge;
-```
- 
-### Dependencies
-- The `edge` parameter must be provided when calling this function, typically representing the new edge state.
- 
----
- 
-## 8. Function `func8`
- 
-### Description
-This function returns the current state of the `corner` variable. This typically pertains to corners of a structure like a Rubik's cube.
- 
-### Body
-```java
-return corner;
-```
- 
-### Dependencies
-- The variable `corner` must be defined and initialized prior to the function's call.
- 
----
- 
-## 9. Function `func9`
- 
-### Description
-This function sets the `corner` property of the current object. It allows for updates to the corners of the `Cube`.
- 
-### Body
-```java
-this.corner = corner;
-```
- 
-### Dependencies
-- The `corner` parameter must be provided when calling this function, typically representing the new corner state.
- 
----
- 
-This documentation encapsulates an overview of function purposes, flows, and dependencies necessary for a comprehensive understanding of how to manipulate cube objects. Each function contributes to managing the properties and behaviors associated with cube configurations, enabling essential operations in applications like a Rubik's Cube solver or simulator.
+
+#### Explanation
+1. **SpringApplication.run**:
+   - This method is a static method provided by the `SpringApplication` class in the Spring Boot framework. It serves to bootstrap the Spring application, starting the context, and running the application with the configurations defined in the `DemoApplication` class.
+   - The first argument, `DemoApplication.class`, indicates the primary Spring component that Spring Boot should use to configure the application context. This typically includes scanning for Spring-managed components, configurations, and the establishment of the application infrastructure.
+   - The second argument, `args`, allows the application to receive runtime parameters. These can configure properties such as logging levels, execution modes, and database connections, among many other things.
+
+2. **Flow of Execution**:
+   - When the program is run, the Java Virtual Machine (JVM) initializes and finds the `main` function as the entry point.
+   - The `main` function executes `SpringApplication.run()`, which begins the Spring Boot application lifecycle.
+   - At this point, the following occurs:
+     - The application context is created.
+     - Automatic configuration of the application is performed based on the dependencies available in the classpath (e.g., databases, message brokers, etc.).
+     - Any components (like Controllers, Services, Repositories, etc.) defined in the application are registered, allowing the application to handle incoming requests or perform background tasks.
+   
+#### Business Logic
+The business logic in a typical Spring Boot application often resides in the types of components that are managed by the Spring context, such as services and controllers. However, the main method's role is primarily infrastructural—it sets the stage for the business logic to run.
+
+By bootstrapping the application using `SpringApplication.run`, the `main` function ensures that all configurations and dependencies are properly set up before any business logic can be executed. This includes setting up aspects such as:
+- Dependency Injection: Spring will manage the instantiation of beans and their dependencies.
+- Configuration: Values from application.properties (or application.yml) files are loaded, applied, and parsed into the application's environment for usage throughout the application.
+
+In summary, while the `main` function primarily handles the setup and initialization of the Spring Boot application, it lays the groundwork for the application to execute its business logic effectively and respond to user interactions or background processes as defined in the application's architecture.
 ## UML Diagram
 ![Image](images/DemoApplication_img1.png)
+

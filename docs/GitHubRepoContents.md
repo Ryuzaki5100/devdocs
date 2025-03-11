@@ -1,217 +1,82 @@
 ﻿# Generated Documentation with UML
-## LLM Output
-# Function Documentation
- 
-This documentation provides detailed explanations for each function listed, maintaining the order of execution based on their dependencies. Each function contributes to manipulating or obtaining properties related to a `Cube` object.
- 
-## 1. Function `func1`
- 
-### Description
-This function is responsible for creating a new instance of the `Cube` class. It clones the properties of `edge` and `corner` from the current instance to ensure that modifications to the new cube do not affect the original cube.
- 
-### Body
-```java
-return new Cube(this.getEdge().clone(), this.getCorner().clone());
-```
- 
-### Dependencies
-- `getEdge()`: Must return the current edge state of the cube.
-- `getCorner()`: Must return the current corner state of the cube.
- 
+# Documentation for GitHubRepoContents Functions 
+
+The following documentation outlines the functions within the `GitHubRepoContents` class related to interacting with GitHub's API to retrieve file contents and their structures from repositories. The flow of execution is presented in the order of the function calls, along with explanations detailing how each function works and the underlying business logic.
+
 ---
- 
-## 2. Function `func2`
- 
-### Description
-This function takes a `Cube` object `c` and a string `s` of moves to apply transformations to the cube's configuration. It handles move notations, updates the edge and corner positions and orientations according to predefined transformation maps.
- 
-### Body
-```java
-Cube temp = c.clone();
-String[] moves = s.split(" ");
-if (moves.length > 1) {
-    // Builds the string representation of moves.
-    StringBuilder sBuilder = new StringBuilder();
-    for (String string : moves) {
-        // Handle different move lengths.
-        if (string.length() == 1)
-            sBuilder.append(string.charAt(0));
-        else if (string.charAt(1) == '2')
-            sBuilder.append(String.valueOf(string.charAt(0)).repeat(2));
-        else
-            sBuilder.append(String.valueOf(string.charAt(0)).repeat(3));
-    }
-    s = sBuilder.toString();
-}
-```
-- This part processes the move notation for subsequent applications.
- 
-```java
-for (int i = 0; i < s.length(); i++) {
-    char ch = s.charAt(i);
-    EdgePos edgePos = temp.getEdge().getEdgePos().clone();
-    EdgeOrientation edgeOrientation = temp.getEdge().getEdgeOrientation().clone();
-    // Update edge position and orientation.
-    for (int j = 0; j < 12; j++) {
-        edgeOrientation.setVal(j, nextEdgeOrientation.get(ch).get(edgePos.getVal()[j]).get(edgeOrientation.getVal()[j]));
-        edgePos.setVal(j, nextEdgePos.get(ch).getVal()[edgePos.getVal()[j]]);
-    }
-    temp.setEdge(new Edge(edgePos, edgeOrientation));
-    CornerPos cornerPos = temp.getCorner().getCornerPos().clone();
-    CornerOrientation cornerOrientation = temp.getCorner().getCornerOrientation().clone();
-    // Update corner position and orientation.
-    for (int j = 0; j < 8; j++) {
-        cornerOrientation.setVal(j, nextCornerOrientation.get(ch).get(cornerPos.getVal()[j]).get(cornerOrientation.getVal()[j]));
-        cornerPos.setVal(j, nextCornerPos.get(ch).getVal()[cornerPos.getVal()[j]]);
-    }
-    temp.setCorner(new Corner(cornerPos, cornerOrientation));
-}
-return temp;
-```
-- Each character in the move string applies corresponding rotations to both edges and corners.
- 
-### Dependencies
-- `getEdge()`, `getCorner()`, `setEdge()`, and `setCorner()` must be defined in the `Cube` class.
-- The transformation maps: `nextEdgeOrientation`, `nextEdgePos`, `nextCornerOrientation`, and `nextCornerPos` must be pre-defined structures for valid operations on the cube.
- 
+
+## 1. `main(String[] args)` 
+**Description**:  
+The entry point of the program when executed. This function orchestrates the retrieval and display of file contents from a specified GitHub repository.
+
+**Functionality**:
+- This function is currently set up to retrieve the contents of a specific file within a designated GitHub repository. It uses the `getFileContents` method to fetch the file contents based on provided global constants (OWNER, REPO, BRANCH).
+- Additionally, there is commented-out code intended for listing the file structure of the repository which can be uncommented as needed.
+- The retrieved file contents are parsed using a hypothetical `SimpleJavaParser` method, presumably to analyze or process the Java code.
+
+**Business Logic**:  
+The `main` function serves as the control center of the operations, tying together components of file retrieval and parsing functionality. It’s meant for users wanting a quick way to examine a file within a GitHub repository and could be expanded for additional features such as listing all files.
+
 ---
- 
-## 3. Function `func3`
- 
-### Description
-This function takes a string `s`, repeats each character three times, and then returns the reversed result as a string. It utilizes `StringBuilder` for efficient string manipulation.
- 
-### Body
-```java
-StringBuilder result = new StringBuilder();
-for (int i = 0; i < s.length(); i++)
-    result.append(String.valueOf(s.charAt(i)).repeat(3));
-return new StringBuilder(result.toString()).reverse().toString();
-```
- 
-### Dependencies
-- `StringBuilder`: This class is used for constructing strings efficiently and requires no external dependencies.
- 
+
+## 2. `listFileStructure(String owner, String repo, String branch, String path)`
+**Description**:  
+This function retrieves and lists the structure of files and directories within a specific path of a GitHub repository.
+
+**Functionality**:
+- Constructs the API URL to query for contents of the specified path in the repository.
+- Opens an HTTP connection and sets necessary request headers, including authorization via access token.
+- Calls the `checkRateLimit` method to ensure the request does not exceed GitHub's API rate limits.
+- If the request is successful (HTTP response code 200), it processes the JSON response. It iterates through the returned content, printing out the names and types of files and directories (invoking itself recursively for directories).
+
+**Business Logic**:  
+This function is crucial for obtaining and displaying the organizational structure of files in a repository. It's beneficial for users who need to understand the layout of the codebase, inspect file types, or navigate directories within the repository.
+
 ---
- 
-## 4. Function `func4`
- 
-### Description
-This function processes a series of move characters and compresses consecutive duplicates into a specific format (e.g., for moves such as `R` becomes `R`, `RR` becomes `R2`), while ignoring sequences of three or more duplicates.
- 
-### Body
-```java
-class Temp {
-    final char ch;  // character representing the move
-    final byte b;   // count of repetitions
- 
-    public Temp(char ch, byte b) {
-        this.ch = ch;
-        this.b = b;
-    }
-}
-Stack<Temp> s = new Stack<>();
-ArrayList<String> v = new ArrayList<>(Arrays.asList("", "", "2", "'"));
-ArrayList<String> result = new ArrayList<>();
-for (int i = 0; i < moves.length(); i++) {
-    // Logic to manage moves
-    if (s.isEmpty() || s.peek().ch != moves.charAt(i))
-        s.push(new Temp(moves.charAt(i), (byte) 1));
-    else {
-        Temp x = s.pop();
-        // Increment count if not already 3
-        if (x.b != (byte) 3)
-            s.push(new Temp(x.ch, (byte) (x.b + 1)));
-    }
-}
-while (!s.isEmpty()) {
-    Temp x = s.pop();
-    if (x.b != 0)
-        result.add(0, x.ch + v.get(x.b));
-}
-return result;
-```
- 
-### Dependencies
-- Utilizes `Stack` and `ArrayList` for the necessary data structures, with no external dependencies required.
- 
+
+## 3. `getFileContents(String owner, String repo, String branch, String path)`
+**Description**:  
+Retrieves the contents of a specified file from a GitHub repository in a decoded format (if applicable).
+
+**Functionality**:
+- Constructs and processes a URL to access the file content via GitHub's API.
+- Similar to `listFileStructure`, it opens an HTTP connection, sets request headers, and checks for rate limits.
+- If the server responds with a success status (200), it reads the input stream to fetch the raw file content, decodes it from Base64, and returns the plain text.
+- In case of a failure (non-200 response), it calls the `handleErrorResponse` method to manage errors gracefully.
+
+**Business Logic**:  
+This method is integral for developers needing specific file contents, facilitating access to source code directly from repositories. The ability to decode Base64 responses is particularly necessary for binary files or certain types of text files stored in this format.
+
 ---
- 
-## 5. Function `func5`
- 
-### Description
-This function provides a string representation of the `Cube` object, including its edge and corner states. It formats the output in a structured string format.
- 
-### Body
-```java
-return "Cube{\n" + "edge=" + edge.toString() + ",\ncorner=" + corner.toString() + "\n}";
-```
- 
-### Dependencies
-- Requires both the `edge` and `corner` objects to have a valid `toString()` method defined, allowing for their string representation.
- 
+
+## 4. `checkRateLimit(HttpURLConnection connection)` 
+**Description**:  
+Checks and handles GitHub's API rate limits to prevent excessive requests that could lead to temporary bans.
+
+**Functionality**:
+- Evaluates the x-rate-limit-remaining response header to determine if the user has exceeded their request quota.
+- If the remaining requests are zero, the method pauses execution for a defined period (`RATE_LIMIT_DELAY`) to allow the rate limit to reset.
+
+**Business Logic**:  
+This function ensures compliance with GitHub's API usage policies, improving the reliability of requests by automatically managing the rate limits. It prevents wasted attempts and potential disruptions for users by allowing appropriate waiting time when limits are hit.
+
 ---
- 
-## 6. Function `func6`
- 
-### Description
-This function returns the current state of the `edge` variable. Typically, this could refer to edges on a Rubik's cube or a similar structure.
- 
-### Body
-```java
-return edge;
-```
- 
-### Dependencies
-- The variable `edge` must be defined and initialized prior to the function's call.
- 
+
+## 5. `handleErrorResponse(HttpURLConnection connection)` 
+**Description**:  
+Handles error responses stemming from API requests, such as when a specified resource could not be retrieved.
+
+**Functionality**:
+- Fetches and prints the HTTP response code returned by the server.
+- Reads the error stream from the connection to provide detailed error information.
+- Closes the connection after reading error data to clean up resources.
+
+**Business Logic**:  
+Error handling is vital for any API interaction. This function aids users by providing feedback on what went wrong when fetching data, ensuring developers can debug issues with clarity about the nature of the errors (such as 404 errors for non-existent files).
+
 ---
- 
-## 7. Function `func7`
- 
-### Description
-This function sets the `edge` property of the current object. It allows for updates to the edges of the `Cube`.
- 
-### Body
-```java
-this.edge = edge;
-```
- 
-### Dependencies
-- The `edge` parameter must be provided when calling this function, typically representing the new edge state.
- 
----
- 
-## 8. Function `func8`
- 
-### Description
-This function returns the current state of the `corner` variable. This typically pertains to corners of a structure like a Rubik's cube.
- 
-### Body
-```java
-return corner;
-```
- 
-### Dependencies
-- The variable `corner` must be defined and initialized prior to the function's call.
- 
----
- 
-## 9. Function `func9`
- 
-### Description
-This function sets the `corner` property of the current object. It allows for updates to the corners of the `Cube`.
- 
-### Body
-```java
-this.corner = corner;
-```
- 
-### Dependencies
-- The `corner` parameter must be provided when calling this function, typically representing the new corner state.
- 
----
- 
-This documentation encapsulates an overview of function purposes, flows, and dependencies necessary for a comprehensive understanding of how to manipulate cube objects. Each function contributes to managing the properties and behaviors associated with cube configurations, enabling essential operations in applications like a Rubik's Cube solver or simulator.
+
+In summary, the functions within `GitHubRepoContents` collectively allow the retrieval of file contents and the directory structure from GitHub repositories, while robust error handling and adherence to rate limits improve the user experience and operational integrity. Each function seamlessly builds upon the last to deliver a comprehensive toolkit for GitHub interactions.
 ## UML Diagram
 ![Image](images/GitHubRepoContents_img1.png)
+
