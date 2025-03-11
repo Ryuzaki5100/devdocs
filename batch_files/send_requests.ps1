@@ -17,7 +17,7 @@ $outputFilePath = "batch_files\output.json"
 # Load existing output.json as an empty object
 $existingData = @{}
 
-# Iterate through each key-value pair and send an API request
+# Iterate through each key-value pair and send an API request using curl
 foreach ($pair in $chunks.PSObject.Properties) {
     $key = $pair.Name
     $value = $pair.Value
@@ -25,19 +25,20 @@ foreach ($pair in $chunks.PSObject.Properties) {
     # Create a JSON object containing only the current key-value pair
     $jsonBody = @{ "$key" = $value } | ConvertTo-Json -Depth 10
 
-    # Send API request
+    # Send API request using curl with -k (ignore SSL issues)
     try {
-        $response = Invoke-RestMethod -Uri $apiUrl -Method Post -Body $jsonBody -ContentType "application/json"
+        $responseJson = curl.exe -s -k -X POST $apiUrl -H "Content-Type: application/json" -d $jsonBody
+        $response = $responseJson | ConvertFrom-Json
 
         # Print the response
-        Write-Host "Response for ${key}:`n$response"
+        Write-Host "Response for ${key}:`n$responseJson"
 
         # Extract the single key-value pair from the response
         $responseKey = ($response.PSObject.Properties | Select-Object -First 1).Name
         $responseValue = $response.$responseKey
 
         # Append the new key-value pair to output.json
-        $existingData | Add-Member -MemberType NoteProperty -Name $responseKey -Value $responseValue -Force
+        $existingData[$responseKey] = $responseValue
 
         # Save the updated JSON back to output.json
         $existingData | ConvertTo-Json -Depth 10 | Set-Content -Path $outputFilePath
