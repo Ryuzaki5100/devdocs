@@ -1,35 +1,31 @@
-$chunksFile = "batch_files\chunks.json"
-$outputFile = "batch_files\output.json"
+# Load the JSON file containing key-value pairs
+$chunks = Get-Content -Raw -Path "chunks.json" | ConvertFrom-Json
 
-if (!(Test-Path $chunksFile)) {
-    Write-Host "Error: chunks.json not found!"
-    exit 1
-}
+# API endpoint
+$apiUrl = "https://2bf9-2401-4900-65a7-e0c8-1428-e71c-3cf-3631.ngrok-free.app/postChunks"
 
-$jsonData = Get-Content -Raw $chunksFile | ConvertFrom-Json
-$totalRequests = $jsonData.PSObject.Properties.Count
+# Progress tracking
+$totalRequests = $chunks.PSObject.Properties.Count
 $processedRequests = 0
 
-$outputJson = @{}
+# Iterate through each key-value pair and send an API request
+foreach ($pair in $chunks.PSObject.Properties) {
+    $key = $pair.Name
+    $value = $pair.Value
 
-foreach ($pair in $jsonData.PSObject.Properties) {
-    $requestBody = @{ $pair.Name = $pair.Value } | ConvertTo-Json -Compress
+    # Create a JSON object containing only the current key-value pair
+    $jsonBody = @{ $key = $value } | ConvertTo-Json -Depth 10
 
-    Write-Host "Sending API request for file: $($pair.Name)"
+    # Send API request
+    try {
+        $response = Invoke-RestMethod -Uri $apiUrl -Method Post -Body $jsonBody -ContentType "application/json"
+        $response | Out-File -Append -Encoding utf8 "output.json"
+    }
+    catch {
+        Write-Host "Failed to process $key"
+    }
 
-    $response = Invoke-RestMethod -Uri "https://2bf9-2401-4900-65a7-e0c8-1428-e71c-3cf-3631.ngrok-free.app/postChunks" `
-                                  -Method Post `
-                                  -ContentType "application/json" `
-                                  -Body $requestBody
-
-    # Store result
-    $outputJson[$pair.Name] = $response
-
-    # Save to output.json after each request
-    $outputJson | ConvertTo-Json -Depth 10 | Set-Content -Path $outputFile -Encoding UTF8
-
+    # Update progress
     $processedRequests++
     Write-Host "Processed $processedRequests / $totalRequests requests."
 }
-
-Write-Host "All API requests completed!"
