@@ -2,7 +2,7 @@
 $jsonData = Get-Content -Raw -Path "batch_files\chunks.json" | ConvertFrom-Json
 
 # Define API endpoint
-$apiUrl = "https://your-api-endpoint.com"
+$apiUrl = "https://2bf9-2401-4900-65a7-e0c8-1428-e71c-3cf-3631.ngrok-free.app/postChunks"
 
 # Counter for processed requests
 $counter = 0
