@@ -49,6 +49,10 @@ jobs:
       - name: Process java_files.txt and Generate JSON
         run: batch_files\generateChunks.bat
         shell: cmd
+        env:
+          GH_OWNER: ${{ github.repository_owner }}
+          GH_REPO: rbxcb
+          GH_BRANCH: ${{ github.ref_name }}
 
       - name: Print chunks.json
         run: type batch_files\chunks.json
