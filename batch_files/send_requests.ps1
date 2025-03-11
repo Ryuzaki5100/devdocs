@@ -8,6 +8,9 @@ $apiUrl = "https://2bf9-2401-4900-65a7-e0c8-1428-e71c-3cf-3631.ngrok-free.app/po
 $totalRequests = $chunks.PSObject.Properties.Count
 $processedRequests = 0
 
+# Ensure output.json starts as an empty array
+"[]" | Set-Content -Path "batch_files\output.json"
+
 # Iterate through each key-value pair and send an API request
 foreach ($pair in $chunks.PSObject.Properties) {
     $key = $pair.Name
@@ -23,9 +26,20 @@ foreach ($pair in $chunks.PSObject.Properties) {
         # Print the response to check if it's null
         Write-Host "Response for ${key}:`n$response"
 
-        # Ensure output.json is properly formatted
-        $formattedResponse = @{ "key" = $key; "response" = $response } | ConvertTo-Json -Depth 10
-        Add-Content -Path "batch_files\output.json" -Value $formattedResponse
+        # Load existing output.json data
+        $existingData = Get-Content -Raw -Path "batch_files\output.json" | ConvertFrom-Json
+
+        # Ensure it's an array
+        if ($existingData -isnot [System.Array]) {
+            $existingData = @()
+        }
+
+        # Append the new response
+        $newEntry = @{ "key" = $key; "response" = $response }
+        $updatedData = $existingData + $newEntry
+
+        # Save the updated JSON back to output.json
+        $updatedData | ConvertTo-Json -Depth 10 | Set-Content -Path "batch_files\output.json"
     }
     catch {
         Write-Host "Failed to process $key. Error: $_"
