@@ -1,10 +1,8 @@
 package com.devdocs.demo.controllers;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.swing.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -234,5 +232,10 @@ public class md {
             result.put(key, temp);
         }
         return result;
+    }
+
+    @GetMapping("/getInfo")
+    public String getInfo(@RequestParam String name) {
+        return name;
     }
 }

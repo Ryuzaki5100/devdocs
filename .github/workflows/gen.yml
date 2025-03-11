@@ -38,19 +38,6 @@ jobs:
           echo "%GITHUB_WORKSPACE%" >> "%GITHUB_PATH%"
         shell: cmd
 
-      - name: List all files in root
-        run: dir /s /b
-        shell: cmd
-
-      - name: Manual Curl Test
-        run: curl -k -G "https://devdocs-vftt.onrender.com/parseJavaCodeToJSON" ^
-          --data-urlencode "owner=Ryuzaki5100" ^
-          --data-urlencode "repo=devdocs" ^
-          --data-urlencode "branch=master" ^
-          --data-urlencode "filePath=demo/src/main/java/com/devdocs/demo/DemoApplication.java" ^
-          --verbose
-        shell: cmd
-
       - name: Generate java_files.txt
         run: batch_files\generateFileStructure.bat
         shell: cmd
@@ -62,29 +49,20 @@ jobs:
       - name: Process java_files.txt and Generate JSON
         run: batch_files\generateChunks.bat
         shell: cmd
-        env:
-          GH_OWNER: ${{ github.repository_owner }}
-          GH_REPO: devdocs
-          GH_BRANCH: ${{ github.ref_name }}
 
       - name: Print chunks.json
         run: type batch_files\chunks.json
         shell: cmd
 
-      - name: Fetch Output JSON from API
-        run: |
-          curl -k -X POST "https://devdocs-vftt.onrender.com/postChunks" ^
-            -H "Content-Type: application/json" ^
-            --data "@batch_files\chunks.json" ^
-            --output "batch_files\output.json" ^
-            --verbose
+      - name: Sequential API Calls for Each Key-Value Pair
+        run: powershell -File batch_files\send_requests.ps1
         shell: cmd
 
       - name: Print output.json
         run: type batch_files\output.json
         shell: cmd
 
-      - name: Generate Markdown Files from output.json
+      - name: Generate Markdown Files
         run: batch_files\generateMarkdown.bat
         shell: cmd
 
@@ -92,10 +70,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-        shell: cmd
-
-      - name: List files in docs directory
-        run: dir docs
         shell: cmd
 
       - name: Commit and Push Generated Files
