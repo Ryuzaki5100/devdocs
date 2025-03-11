@@ -27,6 +27,6 @@ foreach ($key in $jsonData.PSObject.Properties.Name) {
         # Optionally, print response for debugging
         Write-Output "Response: $response"
     } catch {
-        Write-Output "Error processing $key: $_"
+        Write-Output ("Error processing $key: " + $_.Exception.Message)
     }
 }
