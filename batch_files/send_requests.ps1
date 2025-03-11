@@ -1,32 +1,55 @@
-# Load JSON data from chunks.json
-$jsonData = Get-Content -Raw -Path "batch_files\chunks.json" | ConvertFrom-Json
+# Load the JSON file containing key-value pairs
+$chunks = Get-Content -Raw -Path "batch_files\chunks.json" | ConvertFrom-Json
 
-# Define API endpoint
+# API endpoint
 $apiUrl = "https://2bf9-2401-4900-65a7-e0c8-1428-e71c-3cf-3631.ngrok-free.app/postChunks"
 
-# Counter for processed requests
-$counter = 0
+# Progress tracking
+$totalRequests = $chunks.PSObject.Properties.Count
+$processedRequests = 0
 
-# Iterate through each key-value pair in JSON
-foreach ($key in $jsonData.PSObject.Properties.Name) {
-    $value = $jsonData.$key
+# Path to output.json
+$outputFilePath = "batch_files\output.json"
 
-    # Create JSON body
-    $body = @{
-        $key = $value
-    } | ConvertTo-Json -Compress
+# Ensure output.json is reset to an empty object `{}` at the start
+"{}" | Set-Content -Path $outputFilePath
 
-    # Send PUT request
+# Load existing output.json as an empty object
+$existingData = @{}
+
+# Iterate through each key-value pair and send an API request
+foreach ($pair in $chunks.PSObject.Properties) {
+    $key = $pair.Name
+    $value = $pair.Value
+
+    # Create a JSON object containing only the current key-value pair
+    $jsonBody = @{ "$key" = $value } | ConvertTo-Json -Depth 10
+
+    # Send API request
     try {
-        $response = Invoke-RestMethod -Uri $apiUrl -Method Put -Body $body -ContentType "application/json"
+        $response = Invoke-RestMethod -Uri $apiUrl -Method Post -Body $jsonBody -ContentType "application/json"
 
-        # Increment and print counter
-        $counter++
-        Write-Output "Processed: $counter / $($jsonData.PSObject.Properties.Count)"
+        # Print the response
+        Write-Host "Response for ${key}:`n$response"
 
-        # Optionally, print response for debugging
-        Write-Output "Response: $response"
-    } catch {
-        Write-Output ("Error processing ${key}: " + $_.Exception.Message)
+        # Extract the single key-value pair from the response
+        $responseKey = ($response.PSObject.Properties | Select-Object -First 1).Name
+        $responseValue = $response.$responseKey
+
+        # Append the new key-value pair to output.json
+        $existingData | Add-Member -MemberType NoteProperty -Name $responseKey -Value $responseValue -Force
+
+        # Save the updated JSON back to output.json
+        $existingData | ConvertTo-Json -Depth 10 | Set-Content -Path $outputFilePath
     }
+    catch {
+        Write-Host "Failed to process $key. Error: $_"
+    }
+
+    # Update progress
+    $processedRequests++
+    Write-Host "Processed $processedRequests / $totalRequests requests."
+
+    # Delay for 10 seconds
+    Start-Sleep -Seconds 10
 }
