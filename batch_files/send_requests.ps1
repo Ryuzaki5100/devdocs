@@ -22,12 +22,17 @@ foreach ($pair in $chunks.PSObject.Properties) {
     $key = $pair.Name
     $value = $pair.Value
 
-    # Create a JSON object containing only the current key-value pair
-    $jsonBody = @{ "$key" = $value } | ConvertTo-Json -Depth 10
+    # Construct the curl command using --data-urlencode for URL parameters
+    $curlCommand = @"
+curl -k -X POST "$apiUrl" ^
+     --header "Content-Type: application/json" ^
+     --data-urlencode "$key=$value" ^
+     --verbose
+"@
 
-    # Send API request using curl with -k (ignore SSL issues)
+    # Execute the curl command and capture the response
     try {
-        $responseJson = curl.exe -s -k -X POST $apiUrl -H "Content-Type: application/json" -d $jsonBody
+        $responseJson = Invoke-Expression $curlCommand
         $response = $responseJson | ConvertFrom-Json
 
         # Print the response
