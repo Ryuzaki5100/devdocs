@@ -1,5 +1,5 @@
 # Load JSON data from chunks.json
-$jsonData = Get-Content -Raw -Path "chunks.json" | ConvertFrom-Json
+$jsonData = Get-Content -Raw -Path "batch_files\chunks.json" | ConvertFrom-Json
 
 # Define API endpoint
 $apiUrl = "https://your-api-endpoint.com"
