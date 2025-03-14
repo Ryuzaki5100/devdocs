@@ -4,14 +4,24 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.*;
+import java.util.Arrays;
+import java.util.List;
 
 public class SimplePythonParser {
-    // Configurable Python executable
-    private static final String PYTHON_EXECUTABLE = System.getenv("PYTHON_EXECUTABLE") != null ?
-            System.getenv("PYTHON_EXECUTABLE") : "python";
+    // List of possible Python executable paths
+    private static final List<String> PYTHON_EXECUTABLES = Arrays.asList(
+            System.getenv("PYTHON_EXECUTABLE"), // Environment variable (if set)
+            "/usr/bin/python3",                 // Common on Ubuntu/Debian
+            "/usr/local/bin/python3",           // Common on some Linux distros
+            "/opt/python3/bin/python3",         // Possible in custom installs
+            "python3",                          // Fallback to PATH
+            "python"                            // Last resort
+    );
+
+    private static String PYTHON_EXECUTABLE;
 
     // Working directory defaults to the runtime directory
-    private static final String WORKING_DIR = System.getProperty("user.dir");
+    private static final String WORKING_DIR = new File(System.getProperty("user.dir")).getAbsolutePath();
 
     // Embedded content of pythonAnalyze.py
     private static final String PYTHON_ANALYZE_SCRIPT = """
@@ -140,7 +150,37 @@ public class SimplePythonParser {
                 print(analyzer.report_json())
             """;
 
+    static {
+        // Find the first available Python executable
+        PYTHON_EXECUTABLE = findPythonExecutable();
+        if (PYTHON_EXECUTABLE == null) {
+            System.err.println("Error: No Python executable found. Tried: " + PYTHON_EXECUTABLES);
+        }
+    }
+
+    private static String findPythonExecutable() {
+        for (String candidate : PYTHON_EXECUTABLES) {
+            if (candidate == null) continue; // Skip null entries (e.g., unset env var)
+            try {
+                ProcessBuilder pb = new ProcessBuilder(candidate, "--version");
+                Process p = pb.start();
+                int exitCode = p.waitFor();
+                if (exitCode == 0) {
+                    System.out.println("Found Python executable: " + candidate);
+                    return candidate;
+                }
+            } catch (IOException | InterruptedException e) {
+                // Ignore and try the next candidate
+            }
+        }
+        return null;
+    }
+
     public static JsonNode parsePythonCode(String pythonCode) {
+        if (PYTHON_EXECUTABLE == null) {
+            throw new IllegalStateException("No Python executable found on the server. Cannot proceed.");
+        }
+
         try {
             // Create a temporary file with the embedded Python script content
             File pythonScriptFile = createTempScriptFile();
