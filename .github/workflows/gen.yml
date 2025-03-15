@@ -59,7 +59,7 @@ jobs:
         run: type batch_files\source_files.txt
         shell: cmd
 
-      - name: Process java_files.txt and Generate JSON
+      - name: Process source_files.txt and Generate JSON
         run: batch_files\generateChunks.bat
         shell: cmd
         env:
