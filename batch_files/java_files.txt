@@ -1,11 +1,14 @@
 demo/src/main/java/com/devdocs/demo/DemoApplication.java 
 demo/src/main/java/com/devdocs/demo/controllers/JavaParserController.java 
 demo/src/main/java/com/devdocs/demo/controllers/md.java 
+demo/src/main/java/com/devdocs/demo/controllers/ParserController.java 
 demo/src/main/java/com/devdocs/demo/controllers/PythonParserController.java 
+demo/src/main/java/com/devdocs/demo/utils/CombinedPythonParser.java 
 demo/src/main/java/com/devdocs/demo/utils/CustomPython3Lexer.java 
 demo/src/main/java/com/devdocs/demo/utils/EnhancedParser.java 
 demo/src/main/java/com/devdocs/demo/utils/GitHubRepoContents.java 
 demo/src/main/java/com/devdocs/demo/utils/JavaFileStructure.java 
+demo/src/main/java/com/devdocs/demo/utils/PythonDAGFileParser.java 
 demo/src/main/java/com/devdocs/demo/utils/PythonLexerBase.java 
 demo/src/main/java/com/devdocs/demo/utils/PythonParser.java 
 demo/src/main/java/com/devdocs/demo/utils/SimpleJavaParser.java 
