@@ -23,7 +23,7 @@ class DataTask(BaseTask):
         self.data = data
 
     def process_data(self) -> None:
-        print(f" Processing data task {self.task_id} with data: {self.data}")
+        print(f" Processing data tas k {self.task_id} with data: {self.data}")
 
 # Derived class for compute tasks
 class ComputeTask(BaseTask):
