@@ -100,7 +100,7 @@ jobs:
 
       - name: Commit and Push Generated Files
         run: |
-          git add batch_files\java_files.txt
+          git add batch_files\source_files.txt
           git add batch_files\chunks.json
           git add batch_files\output.json
           git add docs\*.md
