@@ -125,6 +125,7 @@ com\devdocs\demo\utils\Python3Parser$Import_nameContext.class
 com\devdocs\demo\utils\Python3Parser$Star_annotationContext.class
 com\devdocs\demo\utils\Python3Parser$Notin_bitwise_orContext.class
 com\devdocs\demo\utils\Python3Parser$If_stmtContext.class
+com\devdocs\demo\utils\PythonDAGFileParser.class
 com\devdocs\demo\utils\Python3Parser$AttrContext.class
 com\devdocs\demo\utils\Python3Parser$ComparisonContext.class
 com\devdocs\demo\utils\Python3Parser$FactorContext.class
@@ -208,6 +209,7 @@ com\devdocs\demo\utils\Python3Parser$BlockContext.class
 com\devdocs\demo\utils\Python3Parser$SetcompContext.class
 com\devdocs\demo\utils\Python3Parser$Bitwise_andContext.class
 com\devdocs\demo\utils\Python3Parser$FstringContext.class
+com\devdocs\demo\utils\CombinedPythonParser.class
 com\devdocs\demo\utils\Python3Parser$For_stmtContext.class
 com\devdocs\demo\utils\Python3Parser$NameContext.class
 com\devdocs\demo\utils\Python3Parser$Del_targetsContext.class

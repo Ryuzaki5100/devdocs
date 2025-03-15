@@ -15,11 +15,11 @@ public class PythonParserController {
         filePath = filePath.trim();
         System.out.println(filePath.length());
         String fileContent = GitHubRepoContents.getFileContents(owner, repo, branch, filePath);
-        return PythonParser.parsePythonCode(fileContent);
+        return CombinedPythonParser.parsePythonCode(fileContent);
     }
 
     @PostMapping("/rawParse")
     public JsonNode rawParse(@RequestBody String fileContent) throws Exception {
-        return PythonParser.parsePythonCode(fileContent);
+        return CombinedPythonParser.parsePythonCode(fileContent);
     }
 }
