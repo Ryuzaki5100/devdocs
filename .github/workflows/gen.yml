@@ -56,7 +56,7 @@ jobs:
         shell: cmd
 
       - name: Print java_files.txt
-        run: type batch_files\java_files.txt
+        run: type batch_files\source_files.txt
         shell: cmd
 
       - name: Process java_files.txt and Generate JSON

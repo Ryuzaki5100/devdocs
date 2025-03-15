@@ -19,13 +19,13 @@ REM Ensure batch_files directory exists
 if not exist "%batch_files_dir%" mkdir "%batch_files_dir%"
 
 REM Define output file inside batch_files
-set "output_file=%batch_files_dir%\java_files.txt"
+set "output_file=%batch_files_dir%\source_files.txt"
 
 REM Clear the output file if it already exists
 type nul > "%output_file%"
 
-REM Find all .java files and store their paths relative to project root
-for /r "%project_root%" %%f in (*.java) do (
+REM Find all .java and .py files and store their paths relative to project root
+for /r "%project_root%" %%f in (*.java *.py) do (
     set "full_path=%%f"
     set "relative_path=!full_path:%project_root%\=!"
 
@@ -37,9 +37,9 @@ for /r "%project_root%" %%f in (*.java) do (
 
 REM Check if anything was written
 if %errorlevel% neq 0 (
-    echo ERROR: No .java files found or issue with writing to %output_file%
+    echo ERROR: No .java or .py files found or issue with writing to %output_file%
 ) else (
-    echo Paths of all .java files have been stored in %output_file%
+    echo Paths of all .java and .py files have been stored in %output_file%
     echo Full path: %output_file%
 )
 

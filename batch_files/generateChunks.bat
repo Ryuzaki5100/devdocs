@@ -8,7 +8,7 @@ chcp 65001 >nul
 :: Define the batch_files directory inside the project root
 for %%I in ("%~dp0..") do set "project_root=%%~fI"
 set "batch_files_dir=%project_root%\batch_files"
-set "java_files=%batch_files_dir%\java_files.txt"
+set "source_files=%batch_files_dir%\source_files.txt"
 set "chunks_json=%batch_files_dir%\chunks.json"
 
 :: Ensure batch_files directory exists
@@ -17,9 +17,9 @@ if not exist "%batch_files_dir%" (
     exit /b 1
 )
 
-:: Check if java_files.txt exists in batch_files
-if not exist "%java_files%" (
-    echo Error: java_files.txt not found in %batch_files_dir%
+:: Check if source_files.txt exists in batch_files
+if not exist "%source_files%" (
+    echo Error: source_files.txt not found in %batch_files_dir%
     exit /b 1
 )
 
@@ -49,8 +49,8 @@ echo { > "%chunks_json%"
 
 set "first_entry=1"
 
-:: Read java_files.txt from batch_files directory
-for /f "usebackq tokens=*" %%i in ("%java_files%") do (
+:: Read source_files.txt from batch_files directory
+for /f "usebackq tokens=*" %%i in ("%source_files%") do (
     set "filePath=%%i"
     echo -----------------------------------------
     echo Processing: !filePath!
@@ -65,7 +65,7 @@ for /f "usebackq tokens=*" %%i in ("%java_files%") do (
     echo API Path: !escaped_path!
 
     :: Fetch the response
-    curl -k -G -s "https://devdocs-vftt.onrender.com/parseJavaCodeToJSON" ^
+    curl -k -G -s "https://devdocs-vftt.onrender.com/parseCode" ^
         --data-urlencode "owner=%GH_OWNER%" ^
         --data-urlencode "repo=%GH_REPO%" ^
         --data-urlencode "branch=%GH_BRANCH%" ^
