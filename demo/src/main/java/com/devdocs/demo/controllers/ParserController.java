@@ -1,5 +1,6 @@
 package com.devdocs.demo.controllers;
 
+import com.devdocs.demo.utils.CombinedPythonParser;
 import com.devdocs.demo.utils.GitHubRepoContents;
 import com.devdocs.demo.utils.PythonParser;
 import com.devdocs.demo.utils.SimpleJavaParser;
@@ -26,7 +27,7 @@ public class ParserController {
             return SimpleJavaParser.parseJavaCode(GitHubRepoContents.getFileContents(owner, repo, branch, filePath));
 
         else if (extension.equals("py"))
-            return PythonParser.parsePythonCode(GitHubRepoContents.getFileContents(owner, repo, branch, filePath));
+            return CombinedPythonParser.parsePythonCode(GitHubRepoContents.getFileContents(owner, repo, branch, filePath));
 
         else
             return null;
