@@ -1,5 +1,6 @@
 package com.devdocs.demo.utils;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.github.javaparser.JavaParser;
@@ -13,6 +14,8 @@ import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import java.util.*;
 
 public class SimpleJavaParser {
+
+    private static final ObjectMapper objectMapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
 
     public static void main(String[] args) {
         String javaCode = "package com.cube.demo.rbxcb.rbxcb_3x3x3.Model;\n" +
@@ -400,7 +403,6 @@ public class SimpleJavaParser {
                 "            EdgePos edgePos = temp.getEdge().getEdgePos().clone();\n" +
                 "            EdgeOrientation edgeOrientation = temp.getEdge().getEdgeOrientation().clone();\n" +
                 "\n" +
-                "\n" +
                 "            for (int j = 0; j < 12; j++) {\n" +
                 "                edgeOrientation.setVal(j, nextEdgeOrientation.get(ch).get(edgePos.getVal()[j]).get(edgeOrientation.getVal()[j]));\n" +
                 "                edgePos.setVal(j, nextEdgePos.get(ch).getVal()[edgePos.getVal()[j]]);\n" +
@@ -492,16 +494,28 @@ public class SimpleJavaParser {
                 "\n" +
                 "// U2 L2 F R D R F R F' L' B U2 F R2 L2 F' U2 B L2 B";
 
-        System.out.println(SimpleJavaParser.parseCodeToJSON(javaCode));
+        System.out.println(SimpleJavaParser.parseJavaCode(javaCode));
     }
 
-    public static JavaFileStructure parseJavaCode(String javaCode) {
+    public static JsonNode parseJavaCode(String javaCode) {
+        // Validate input
+        if (javaCode == null || javaCode.trim().isEmpty()) {
+            System.err.println("Error: Input Java code string is null or empty");
+            return null;
+        }
+
         ParseResult<CompilationUnit> parseResult = new JavaParser().parse(javaCode);
         if (parseResult.isSuccessful() && parseResult.getResult().isPresent()) {
             CompilationUnit cu = parseResult.getResult().get();
             JavaFileVisitor visitor = new JavaFileVisitor();
             cu.accept(visitor, null);
-            return visitor.getJavaFileStructure();
+            JavaFileStructure javaFileStructure = visitor.getJavaFileStructure();
+            try {
+                return objectMapper.valueToTree(javaFileStructure);
+            } catch (IllegalArgumentException e) {
+                System.err.println("Failed to convert JavaFileStructure to JsonNode: " + e.getMessage());
+                return null;
+            }
         } else {
             System.err.println("Parsing failed: " + parseResult.getProblems());
             return null;
@@ -509,21 +523,19 @@ public class SimpleJavaParser {
     }
 
     public static String parseCodeToJSON(String fileContent) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.enable(SerializationFeature.INDENT_OUTPUT); // Pretty print
-        try {
-            JavaFileStructure parsedStructure = SimpleJavaParser.parseJavaCode(fileContent);
-            if (parsedStructure == null) {
-                return objectMapper.writeValueAsString(Map.of("error", "Parsing failed"));
-            }
-            return objectMapper.writeValueAsString(parsedStructure);
-        } catch (Exception e) {
-            e.printStackTrace();
+        JsonNode jsonNode = parseJavaCode(fileContent);
+        if (jsonNode == null) {
             try {
-                return objectMapper.writeValueAsString(Map.of("error", "Exception occurred: " + e.getMessage()));
-            } catch (Exception ex) {
+                return objectMapper.writeValueAsString(Map.of("error", "Parsing failed"));
+            } catch (Exception e) {
                 return "{\"error\": \"Critical JSON serialization failure\"}";
             }
+        }
+        try {
+            return objectMapper.writeValueAsString(jsonNode);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "{\"error\": \"Exception occurred: " + e.getMessage() + "\"}";
         }
     }
 

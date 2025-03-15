@@ -73,6 +73,7 @@ com\devdocs\demo\utils\Python3Parser$Yield_exprContext.class
 com\devdocs\demo\utils\Python3Parser$LambdefContext.class
 com\devdocs\demo\utils\Python3Parser$Is_bitwise_orContext.class
 com\devdocs\demo\utils\Python3Parser$Param_maybe_defaultContext.class
+com\devdocs\demo\controllers\ParserController.class
 com\devdocs\demo\utils\Python3Parser$PatternsContext.class
 com\devdocs\demo\utils\Python3Parser$Return_stmtContext.class
 com\devdocs\demo\utils\Python3Parser$Mapping_patternContext.class
