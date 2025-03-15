@@ -1,271 +1,127 @@
 package com.devdocs.demo.utils;
 
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import java.io.*;
-import java.util.Arrays;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class SimplePythonParser {
-    // List of possible Python executable paths
-    private static final List<String> PYTHON_EXECUTABLES = Arrays.asList(
-            System.getenv("PYTHON_EXECUTABLE"), // Environment variable (if set)
-            "/usr/bin/python3",                 // Common on Ubuntu/Debian
-            "/usr/local/bin/python3",           // Common on some Linux distros
-            "/opt/python3/bin/python3",         // Possible in custom installs
-            "python3",                          // Fallback to PATH
-            "python"                            // Last resort
-    );
 
-    private static String PYTHON_EXECUTABLE;
+    private static final ObjectMapper mapper = new ObjectMapper();
 
-    // Working directory defaults to the runtime directory
-    private static final String WORKING_DIR = new File(System.getProperty("user.dir")).getAbsolutePath();
+    public static JsonNode parsePythonCode(String code) throws IOException {
+        CharStream input = CharStreams.fromString(code);
+        Python3Lexer lexer = new Python3Lexer(input);
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        Python3Parser parser = new Python3Parser(tokens);
+        parser.setBuildParseTree(true);
+        Python3Parser.File_inputContext tree = parser.file_input();
 
-    // Embedded content of pythonAnalyze.py
-    private static final String PYTHON_ANALYZE_SCRIPT = """
-            import ast
-            import json
-            import sys
-            from collections import defaultdict
+        if (parser.getNumberOfSyntaxErrors() > 0) {
+            throw new IllegalArgumentException("Syntax errors detected in the Python code.");
+        }
 
-            class PythonFileStructure:
-                def __init__(self):
-                    self.imports = []
-                    self.classes = []
-                    self.functions = []
+        PythonStructureListener listener = new PythonStructureListener();
+        ParseTreeWalker walker = new ParseTreeWalker();
+        walker.walk(listener, tree);
 
-                class PythonClassStructure:
-                    def __init__(self, name, extended_classes=None, annotations=None):
-                        self.name = name
-                        self.extended_classes = extended_classes or []
-                        self.annotations = annotations or []
-                        self.methods = []
+        ObjectNode result = mapper.createObjectNode();
+        result.set("imports", mapper.valueToTree(listener.getImports()));
+        result.set("functions", mapper.valueToTree(listener.getFunctions()));
+        result.set("classes", mapper.valueToTree(listener.getClasses()));
 
-                class PythonMethodStructure:
-                    def __init__(self, name, return_type=None, parameters=None, body=None, annotations=None):
-                        self.name = name
-                        self.return_type = return_type or ""
-                        self.parameters = parameters or []
-                        self.body = body or ""
-                        self.annotations = annotations or []
+        return result;
+    }
 
-            class CodeAnalyzer(ast.NodeVisitor):
-                def __init__(self):
-                    self.file_structure = PythonFileStructure()
-                    self.function_calls = defaultdict(set)
-                    self.source_code = ""
+    public static class PythonStructureListener extends Python3ParserBaseListener {
+        private final List<String> imports = new ArrayList<>();
+        private final List<String> functions = new ArrayList<>();
+        private final List<String> classes = new ArrayList<>();
 
-                def visit_Import(self, node):
-                    for alias in node.names:
-                        self.file_structure.imports.append(alias.name)
-                    self.generic_visit(node)
-
-                def visit_ImportFrom(self, node):
-                    module = node.module
-                    for alias in node.names:
-                        self.file_structure.imports.append(f"{module}.{alias.name}")
-                    self.generic_visit(node)
-
-                def visit_ClassDef(self, node):
-                    class_name = node.name
-                    extended_classes = [base.id for base in node.bases if isinstance(base, ast.Name)]
-                    annotations = [decorator.id for decorator in node.decorator_list if isinstance(decorator, ast.Name)]
-                    new_class = PythonFileStructure.PythonClassStructure(class_name, extended_classes, annotations)
-                    self.file_structure.classes.append(new_class)
-                    self.generic_visit(node)
-
-                def visit_FunctionDef(self, node):
-                    func_name = node.name
-                    args = [arg.arg for arg in node.args.args]
-                    return_type = ast.unparse(node.returns) if node.returns else ""
-                    function_body = ast.get_source_segment(self.source_code, node)
-                    annotations = [decorator.id for decorator in node.decorator_list if isinstance(decorator, ast.Name)]
-                    new_method = PythonFileStructure.PythonMethodStructure(func_name, return_type, args, function_body, annotations)
-
-                    if self.file_structure.classes:
-                        self.file_structure.classes[-1].methods.append(new_method)
-                    else:
-                        self.file_structure.functions.append(new_method)
-
-                    for child in ast.walk(node):
-                        if isinstance(child, ast.Call) and isinstance(child.func, ast.Name):
-                            called_func = child.func.id
-                            self.function_calls[func_name].add(called_func)
-
-                    self.generic_visit(node)
-
-                def analyze(self, source_code):
-                    self.source_code = source_code
-                    tree = ast.parse(self.source_code)
-                    self.visit(tree)
-
-                def report_json(self):
-                    result = {
-                        "imports": self.file_structure.imports,
-                        "classes": [
-                            {
-                                "name": cls.name,
-                                "extendedClasses": cls.extended_classes,
-                                "annotations": cls.annotations,
-                                "methods": [
-                                    {
-                                        "name": method.name,
-                                        "returnType": method.return_type,
-                                        "parameters": method.parameters,
-                                        "body": method.body,
-                                        "annotations": method.annotations,
-                                    }
-                                    for method in cls.methods
-                                ],
+        @Override
+        public void enterImport_name(Python3Parser.Import_nameContext ctx) {
+            if (ctx.dotted_as_names() != null) {
+                for (var dottedAsName : ctx.dotted_as_names().dotted_as_name()) {
+                    StringBuilder importName = new StringBuilder();
+                    Python3Parser.Dotted_nameContext dottedName = dottedAsName.dotted_name();
+                    if (dottedName != null) {
+                        List<Python3Parser.NameContext> names = Collections.singletonList(dottedName.name());
+                        if (names != null && !names.isEmpty()) {
+                            for (var name : names) {
+                                if (importName.length() > 0) importName.append(".");
+                                importName.append(name.getText());
                             }
-                            for cls in self.file_structure.classes
-                        ],
-                        "functions": [
-                            {
-                                "name": func.name,
-                                "returnType": func.return_type,
-                                "parameters": func.parameters,
-                                "body": func.body,
-                                "annotations": func.annotations,
-                            }
-                            for func in self.file_structure.functions
-                        ],
-                        "function_dependencies": {func: list(called_funcs) for func, called_funcs in self.function_calls.items()}
+                        } else {
+                            System.out.println("Warning: No name contexts found in dotted_name: " + dottedName.getText());
+                        }
+                    } else {
+                        System.out.println("Warning: dotted_name is null in dotted_as_name context");
                     }
-                    return json.dumps(result, indent=4)
 
-            if __name__ == "__main__":
-                analyzer = CodeAnalyzer()
-
-                if len(sys.argv) > 1:
-                    filepath = sys.argv[1]
-                    with open(filepath, "r", encoding="utf-8") as f:
-                        source_code = f.read()
-                else:
-                    source_code = sys.stdin.read()
-
-                analyzer.analyze(source_code)
-                print(analyzer.report_json())
-            """;
-
-    static {
-        // Find the first available Python executable
-        PYTHON_EXECUTABLE = findPythonExecutable();
-        if (PYTHON_EXECUTABLE == null) {
-            System.err.println("Error: No Python executable found. Tried: " + PYTHON_EXECUTABLES);
-        }
-    }
-
-    private static String findPythonExecutable() {
-        for (String candidate : PYTHON_EXECUTABLES) {
-            if (candidate == null) continue; // Skip null entries (e.g., unset env var)
-            try {
-                ProcessBuilder pb = new ProcessBuilder(candidate, "--version");
-                Process p = pb.start();
-                int exitCode = p.waitFor();
-                if (exitCode == 0) {
-                    System.out.println("Found Python executable: " + candidate);
-                    return candidate;
-                }
-            } catch (IOException | InterruptedException e) {
-                // Ignore and try the next candidate
-            }
-        }
-        return null;
-    }
-
-    public static JsonNode parsePythonCode(String pythonCode) {
-        if (PYTHON_EXECUTABLE == null) {
-            throw new IllegalStateException("No Python executable found on the server. Cannot proceed.");
-        }
-
-        try {
-            // Create a temporary file with the embedded Python script content
-            File pythonScriptFile = createTempScriptFile();
-
-            if (pythonScriptFile == null || !pythonScriptFile.exists()) {
-                System.err.println("Error: Could not create temporary pythonAnalyze.py at " + pythonScriptFile);
-                return null;
-            }
-
-            // Build the process to execute the Python script
-            ProcessBuilder processBuilder = new ProcessBuilder(PYTHON_EXECUTABLE, pythonScriptFile.getAbsolutePath());
-
-            // Set the working directory to the application's runtime directory
-            processBuilder.directory(new File(WORKING_DIR));
-
-            // Redirect error stream to output
-            processBuilder.redirectErrorStream(true);
-
-            // Start the process
-            Process process = processBuilder.start();
-
-            // Write the Python code to the process input stream
-            try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()))) {
-                writer.write(pythonCode);
-                writer.flush();
-            }
-
-            // Read the output of the script
-            StringBuilder output = new StringBuilder();
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    output.append(line).append(System.lineSeparator());
+                    Python3Parser.NameContext aliasName = dottedAsName.name();
+                    if (dottedAsName.AS() != null && aliasName != null) {
+                        importName.append(" as ").append(aliasName.getText());
+                    }
+                    imports.add(importName.toString());
                 }
             }
-
-            // Wait for process to complete and print exit code
-            int exitCode = process.waitFor();
-            System.out.println("pythonAnalyze.py exited with code: " + exitCode);
-
-            // Parse the JSON output
-            String jsonOutput = output.toString().trim();
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode jsonNode = objectMapper.readTree(jsonOutput);
-
-            // Clean up the temporary file
-            pythonScriptFile.deleteOnExit();
-
-            return jsonNode;
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-            return null;
         }
+
+        @Override
+        public void enterFunction_def(Python3Parser.Function_defContext ctx) {
+            Python3Parser.Function_def_rawContext rawContext = ctx.function_def_raw();
+            if (rawContext != null) {
+                Python3Parser.NameContext nameCtx = rawContext.name();
+                if (nameCtx != null) {
+                    functions.add(nameCtx.getText());
+                } else {
+                    System.out.println("Warning: name is null in function_def_raw context: " + rawContext.getText());
+                }
+            } else {
+                System.out.println("Warning: function_def_raw is null in function_def context: " + ctx.getText());
+            }
+        }
+
+        @Override
+        public void enterClass_def(Python3Parser.Class_defContext ctx) {
+            Python3Parser.Class_def_rawContext rawContext = ctx.class_def_raw();
+            if (rawContext != null) {
+                Python3Parser.NameContext nameCtx = rawContext.name();
+                if (nameCtx != null) {
+                    classes.add(nameCtx.getText());
+                } else {
+                    System.out.println("Warning: name is null in class_def_raw context: " + rawContext.getText());
+                }
+            } else {
+                System.out.println("Warning: class_def_raw is null in class_def context: " + ctx.getText());
+            }
+        }
+
+        public List<String> getImports() { return imports; }
+        public List<String> getFunctions() { return functions; }
+        public List<String> getClasses() { return classes; }
     }
 
-    private static File createTempScriptFile() {
+    public static void main(String[] args) {
         try {
-            // Create a temporary file for the Python script
-            File tempFile = File.createTempFile("pythonAnalyze", ".py");
-
-            // Write the embedded script content to the temporary file
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
-                writer.write(PYTHON_ANALYZE_SCRIPT);
-            }
-
-            System.out.println("Created temporary pythonAnalyze.py at: " + tempFile.getAbsolutePath());
-            return tempFile;
+            String pythonCode = """
+                    import math
+                    import os as o
+                    def hello():
+                        pass
+                    class MyClass:
+                        pass
+                    """;
+            JsonNode result = parsePythonCode(pythonCode);
+            System.out.println("Parsed JSON: " + result.toPrettyString());
         } catch (IOException e) {
             e.printStackTrace();
-            return null;
         }
-    }
-
-    // For testing locally
-    public static void main(String[] args) {
-        String pythonCode = """
-                def example_function(x):
-                    if x > 0:
-                        return "Positive"
-                    elif x < 0:
-                        return "Negative"
-                    else:
-                        return "Zero"
-                """;
-        JsonNode result = parsePythonCode(pythonCode);
-        System.out.println("Parsed JSON: " + result);
     }
 }
